@@ -1,0 +1,6 @@
+proccess id lookup:  ps -ef | grep python
+kill a give proccess id:  kill [pid]
+look at top process: top
+leave top processes: q
+dir of log file: /tmp
+look at end of log:  tail -f [filename]
