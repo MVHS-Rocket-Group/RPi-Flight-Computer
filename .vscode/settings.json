@@ -2,6 +2,7 @@
   "python.formatting.provider": "autopep8",
   "python.pythonPath": "C:\\Program Files\\Python37\\python.exe",
   "cSpell.words": [
+    "gpio",
     "kalman"
   ]
 }

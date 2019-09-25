@@ -8,7 +8,7 @@
 
 - [RPi PWM Servo control](https://www.electronicshub.org/raspberry-pi-servo-motor-interface-tutorial/)
 - [ESC Specs page](https://hobbyking.com/en_us/turnigy-monster-2000-200a-4-12s-brushless-esc.html)
-  - [ESC manua](https://cdn-global-hk.hobbyking.com/media/file/969150300X462171X21.pdf)
+  - [ESC manual](https://cdn-global-hk.hobbyking.com/media/file/969150300X462171X21.pdf)
   - [Optional programming card](https://hobbyking.com/en_us/turnigy-monster-2000-esc-programming-card.html)
 
 - ~~[BerryIMU C++ resources](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor/#Guides%20and%20Tutorials)~~
@@ -31,4 +31,4 @@
 - Logger file format
   - ASCII text lines: `msgType`s (`IMU`, `Filtered`, `Event`)
   - Separate Python script to parse out IMU or Filtered IMU data for processing (*maybe to a `csv` file?*)
-  - TODO: Look into graphing tools to visualize flight data (*maybe [plot.ly's Python `Dash` library](https://dash.plot.ly/)?*)
+  - TODO: Look into graphing tools to visualize flight data (*maybe [plot.ly Python `Dash` library](https://dash.plot.ly/)?*)
