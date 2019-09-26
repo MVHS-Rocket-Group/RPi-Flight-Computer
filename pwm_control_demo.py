@@ -12,7 +12,7 @@ import sys
 # - 0% command --> 5% duty cycle
 # - 100% command --> 10% duty cycle
 
-esc_pwm_pin = 12
+esc_pwm_pin = 15
 # frequency (Hz) = 1 / period (sec)
 esc_pwm_freq = 1 / 0.02
 # Duty cycle percentage when firewalling the throttle.
@@ -42,7 +42,7 @@ try:
     esc_pwm.ChangeDutyCycle(esc_max_duty)
     for count in range(5):
         time.sleep(1)
-        print(count + "...")
+        print(str(count) + "...")
 
     print("Setting minimum power")
     esc_pwm.ChangeDutyCycle(esc_min_duty)
