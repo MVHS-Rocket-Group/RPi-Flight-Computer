@@ -10,6 +10,7 @@
 - [ESC Specs page](https://hobbyking.com/en_us/turnigy-monster-2000-200a-4-12s-brushless-esc.html)
   - [ESC manual](https://cdn-global-hk.hobbyking.com/media/file/969150300X462171X21.pdf)
   - [Optional programming card](https://hobbyking.com/en_us/turnigy-monster-2000-esc-programming-card.html)
+- [Rocket coordinate system reference](https://qph.fs.quoracdn.net/main-qimg-67b906f1ec6e62819e16134e76b8830f-c)
 
 - ~~[BerryIMU C++ resources](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor/#Guides%20and%20Tutorials)~~
 - ~~[RaspiCam C++ resources](https://www.uco.es/investiga/grupos/ava/node/40)~~

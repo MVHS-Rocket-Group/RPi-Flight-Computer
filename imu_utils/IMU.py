@@ -69,6 +69,7 @@ def writeGRY(register, value):
     return -1
 
 
+# Accelerometer
 def readACCx():
     acc_l = bus.read_byte_data(ACC_ADDRESS, OUT_X_L_XL)
     acc_h = bus.read_byte_data(ACC_ADDRESS, OUT_X_H_XL)
@@ -93,6 +94,7 @@ def readACCz():
     return acc_combined if acc_combined < 32768 else acc_combined - 65536
 
 
+# Magnetometer
 def readMAGx():
     mag_l = bus.read_byte_data(MAG_ADDRESS, OUT_X_L_M)
     mag_h = bus.read_byte_data(MAG_ADDRESS, OUT_X_H_M)
@@ -116,6 +118,7 @@ def readMAGz():
     return mag_combined if mag_combined < 32768 else mag_combined - 65536
 
 
+# Gyroscope
 def readGYRx():
     gyr_l = bus.read_byte_data(GYR_ADDRESS, OUT_X_L_G)
     gyr_h = bus.read_byte_data(GYR_ADDRESS, OUT_X_H_G)
