@@ -1,0 +1,16 @@
+
+This program is used to create an Inclinometer using a Raspberry Pi and an IMU
+
+http://ozzmaker.com/inclinometer-using-raspberry-pi-imu/
+
+
+Both the BerryIMUv1 and BerryIMUv2 are supported
+
+Compile with;
+
+gcc -o gyro_accelerometer_tutorial02 -lm gyro_accelerometer_tutorial02.c `sdl-config --cflags` `sdl-config --libs` -lSDL_image -lSDL_gfx
+
+
+To run;
+sudo ./gyro_accelerometer_tutorial02
+

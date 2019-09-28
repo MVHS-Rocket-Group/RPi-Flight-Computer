@@ -2,7 +2,8 @@
 
 ## Repository Structure
 
-- `Old Software`: Software from initial September 5, 2019 dump of the `/home/pi` directory.
+- `BerryIMU/*`: Example and library code for the BerryIMU from Ozzymaker.
+- `Old Software/*`: Software from initial September 5, 2019 dump of the `/home/pi` directory.
 
 ## Helpful Resources
 
