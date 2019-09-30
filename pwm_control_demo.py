@@ -1,17 +1,6 @@
 import time
 import sys
 
-# RC PWM has a "window" period of 20ms (milliseconds), with a pulse ranging in
-# width from 1ms to 2ms, where 1ms is ~0% command and 2ms is ~100% command. Duty
-# cycle, a percentage, is a ratio of on-time to off-time.
-#
-# Cit: https://upload.wikimedia.org/wikipedia/commons/b/b7/Sinais_controle_servomotor.JPG
-# Cit: https://sourceforge.net/p/raspberry-gpio-python/wiki/PWM/
-#
-# Therefore:
-# - 0% command --> 5% duty cycle
-# - 100% command --> 10% duty cycle
-
 esc_pwm_pin = 15
 # frequency (Hz) = 1 / period (sec)
 esc_pwm_freq = 1 / 0.02

@@ -10,18 +10,29 @@
 - Embedded RPi Python script functions
   - Flight Controller (*PWM Output*)
   - IMU & Event data logger
-    - [3-axis accelerometer, gyroscope, magnetometer](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor) recording (*200hz?, filtered through Kalman filter*)
+    - [IMU](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor) data recording (*filtered through Kalman filter*)
     - Important flight events: e.g. Launch detection, arming of different systems, control loop decisions, deployments (*detected via accelerometer edges?*)
     - Flight duration
-  - Camera recorder & lighting control
+  - Camera recorder
   - Landing buzzer control?
   - Automatic safe shutdown after landing detected
     - 1 minute of zero acceleration after flight?
 
 - Logger file format
-  - ASCII text lines: `msgType`s (`IMU`, `Filtered`, `Event`)
-  - Separate Python script to parse out IMU or Filtered IMU data for processing (*maybe to a `csv` file?*)
+  - CSV text lines: flight state with additional column for events
   - TODO: Look into graphing tools to visualize flight data (*maybe [plot.ly Python `Dash` library](https://dash.plot.ly/)?*)
+
+## Background on PWM control for Servo Motors and ESCs
+
+RC PWM has a "window" period of 20ms (milliseconds), with a pulse ranging in width from 1ms to 2ms, where 1ms is ~0% command and 2ms is ~100% command. Duty cycle, a percentage, is a ratio of on-time to off-time.
+
+![ESC PWM Diagram](https://upload.wikimedia.org/wikipedia/commons/b/b7/Sinais_controle_servomotor.JPG)
+
+[Documentation from RPi.GPIO library](https://sourceforge.net/p/raspberry-gpio-python/wiki/PWM)
+
+Therefore:
+- 0% throttle command --> 5% duty cycle
+- 100% throttle command --> 10% duty cycle
 
 ## Helpful Resources
 
