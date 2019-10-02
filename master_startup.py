@@ -84,7 +84,13 @@ try:
     # Main Loop
     while True:
         # TODO: Read in motion data from IMU
-        # TODO: Compute and send target to ESC
+        if flight_state == FlightState.ON_PAD:
+            # TODO: Compute and send target to ESC
+            pass
+        elif flight_state == FlightState.LAUNCHED:
+            pass
+        elif flight_state == FlightState.LANDED:
+            pass
         # TODO: Did any important events get triggered?
         # TODO: Did the flight state change? e.g. did we just launch, just land?
         # TODO: Has it been >1 munute since landing? If so, shut off the camera recording and shut down RPi
