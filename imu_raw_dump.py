@@ -3,7 +3,9 @@ import csv
 import os
 import smbus
 import IMU
-DEL = ","  # Data item delimiter
+DEL = ","  # Data item delimiter.
+GYRO_GAIN = 0.070  # Gyro deg/s/ per LSB.
+MAG_CALIB = [[None, None], [None, None], [None, None]]  # Magnetometer min/max calibrated values.
 
 # Get I2C bus
 bus = smbus.SMBus(1)
@@ -93,6 +95,9 @@ def getBaroValues(bus):
     var2 = p * (dig_P8) / 32768.0
     pressure = (p + (var1 + var2 + (dig_P7)) / 16.0) / 100
 
+    # Units:
+    #   - cTemp: Celsius
+    #   - pressure: hPa (hectopascal)
     return (cTemp, pressure)
 
 
@@ -115,17 +120,20 @@ IMU.initIMU()       # Initialise the accelerometer, gyroscope and compass
 try:
     while True:
         baroValues = getBaroValues(bus)
+        # Units: g's
+        acc = [IMU.readACCx() * 0.244 / 1000, IMU.readACCy() * 0.244 /
+               1000, IMU.readACCz() * 0.244 / 1000]
+        # Units: deg/s
+        gyro = [IMU.readGYRx() * GYRO_GAIN, IMU.readGYRy() *
+                GYRO_GAIN, IMU.readGYRz() * GYRO_GAIN]
+        # Units: ?
+        mag = [IMU.readMAGx(), IMU.readMAGy(), IMU.readMAGz()]
 
-        print(str(IMU.readACCx() * 0.244 / 1000) + DEL + str(IMU.readACCy() * 0.244 / 1000) + DEL
-              + str(IMU.readACCz() * 0.244 / 1000) +
-              "\t\t" + str(IMU.readGYRx() * 0.070) + DEL
-              + str(IMU.readGYRy() * 0.070) + DEL +
-              str(IMU.readGYRz() * 0.070) + "\t\t"
-              + str(IMU.readMAGx()) + DEL + str(IMU.readMAGy()) + DEL
-              + str(IMU.readMAGz()) + "\t\t" + str(baroValues[0]) + DEL + str(baroValues[1]))
+        print(str(acc[0]) + DEL + str(acc[1]) + DEL + str(acc[2]) + "\t\t" + str(gyro[0]) + DEL + str(gyro[1]) + DEL + str(gyro[2]) +
+              "\t\t" + str(mag[0]) + DEL + str(mag[1]) + DEL + str(mag[2]) + "\t\t" + str(baroValues[0]) + DEL + str(baroValues[1]))
 
-        file.writerow([IMU.readACCx() * 0.244 / 1000, IMU.readACCy() * 0.244 / 1000, IMU.readACCz() * 0.244 / 1000, IMU.readGYRx() * 0.070,
-                       IMU.readGYRy() * 0.070, IMU.readGYRz() * 0.070, IMU.readMAGx(), IMU.readMAGy(), IMU.readMAGz(), baroValues[0], baroValues[1]])
+        file.writerow([acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2],
+                       mag[0], mag[1], mag[2], baroValues[0], baroValues[1]])
 
 except KeyboardInterrupt:
     pass
