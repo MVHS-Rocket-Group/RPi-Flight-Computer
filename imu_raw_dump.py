@@ -106,8 +106,8 @@ while os.path.isfile(folder_path + file_root + str(file_suffix) + ".csv"):
 
 file = csv.writer(open(folder_path + file_root + str(file_suffix) + ".csv", 'w'),
                   delimiter=',')
-file.writerow(
-    "accX,accY,accZ,gyroX,gyroY,gyroZ,magX,magY,magZ,baroTemp,baroPressure")
+file.writerow(["accX", "accY", "accZ", "gyroX", "gyroY", "gyroZ",
+               "magX", "magY", "magZ", "baroTemp", "baroPressure"])
 
 IMU.detectIMU()     # Detect if BerryIMUv1 or BerryIMUv2 is connected.
 IMU.initIMU()       # Initialise the accelerometer, gyroscope and compass
@@ -124,14 +124,8 @@ try:
               + str(IMU.readMAGx()) + DEL + str(IMU.readMAGy()) + DEL
               + str(IMU.readMAGz()) + "\t\t" + str(baroValues[0]) + DEL + str(baroValues[1]))
 
-        csvLine = (str(IMU.readACCx() * 0.244 / 1000) + DEL + str(IMU.readACCy() * 0.244 / 1000) + DEL
-                   + str(IMU.readACCz() * 0.244 / 1000) +
-                   DEL + str(IMU.readGYRx() * 0.070) + DEL
-                   + str(IMU.readGYRy() * 0.070) + DEL +
-                   str(IMU.readGYRz() * 0.070) + DEL
-                   + str(IMU.readMAGx()) + DEL + str(IMU.readMAGy()) + DEL
-                   + str(IMU.readMAGz()) + str(baroValues[0]) + DEL + str(baroValues[1]))
-        file.writerow(csvLine)
+        file.writerow([IMU.readACCx() * 0.244 / 1000, IMU.readACCy() * 0.244 / 1000, IMU.readACCz() * 0.244 / 1000, IMU.readGYRx() * 0.070,
+                       IMU.readGYRy() * 0.070, IMU.readGYRz() * 0.070, IMU.readMAGx(), IMU.readMAGy(), IMU.readMAGz(), baroValues[0], baroValues[1]])
 
 except KeyboardInterrupt:
     pass
