@@ -28,6 +28,18 @@ RC PWM has a "window" period of 20ms (milliseconds), with a pulse ranging in wid
 
 ![ESC PWM Diagram](https://upload.wikimedia.org/wikipedia/commons/b/b7/Sinais_controle_servomotor.JPG)
 
+### Rocket IMU Axes
+
+From perspective of a cockpit at the nose cone:
+
+![Originally defined like a fighter plane due to how early spacecraft were flight cockpits plopped on the top of rocket boosters.](https://qph.fs.quoracdn.net/main-qimg-67b906f1ec6e62819e16134e76b8830f-c)
+
+| Vehicle Axis: | Axis Description: | IMU Measurement Axis: |
+|--------------:|-------------------|:----------------------|
+| X | *roll - vertical axis through center of rocket* | +Y (*acc*), -Y (*gyro*) |
+| Y | *pitch - horizontal axis* | +X (*acc*), +X (*gyro*) |
+| Z | *yaw - horizontal axis* | -Z (*acc*), +Z (*gyro*) |
+
 [Documentation from RPi.GPIO library](https://sourceforge.net/p/raspberry-gpio-python/wiki/PWM)
 
 Therefore:
@@ -41,7 +53,6 @@ Therefore:
   - [ESC Specs](https://hobbyking.com/en_us/turnigy-monster-2000-200a-4-12s-brushless-esc.html)
     - [ESC manual](https://cdn-global-hk.hobbyking.com/media/file/969150300X462171X21.pdf)
     - [ESC programming card](https://hobbyking.com/en_us/turnigy-monster-2000-esc-programming-card.html)
-- [Rocket coordinate system reference](https://qph.fs.quoracdn.net/main-qimg-67b906f1ec6e62819e16134e76b8830f-c)
 
 - BerryIMU
   - ~~[C++ API resources](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor/#Guides%20and%20Tutorials)~~
