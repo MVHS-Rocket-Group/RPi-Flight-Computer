@@ -27,14 +27,16 @@ try:
 
     # while True:
     # Set the throttle to full power for 5s.
-    print("Setting maximum power")
-    esc_pwm.ChangeDutyCycle(esc_max_duty)
+    print("Setting quarter power")
+    esc_pwm.ChangeDutyCycle(0.25 * (esc_max_duty - esc_min_duty) + esc_min_duty)
     for count in range(5):
         time.sleep(1)
         print(str(count) + "...")
 
     print("Setting minimum power")
     esc_pwm.ChangeDutyCycle(esc_min_duty)
+
+    time.sleep(2)
 
 except KeyboardInterrupt:
     pass

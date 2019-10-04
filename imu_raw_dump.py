@@ -2,8 +2,8 @@ import time
 import csv
 import os
 import smbus
-from imu_utils import IMU
-DEL = ", "  # Data item delimiter
+import IMU
+DEL = ","  # Data item delimiter
 
 # Get I2C bus
 bus = smbus.SMBus(1)
@@ -96,12 +96,16 @@ def getBaroValues(bus):
     return (cTemp, pressure)
 
 
+folder_path = "imu_raw_dump/"
+file_root = "imu_dump"
 file_suffix = 0
-while os.path.isfile("imu_dump" + str(file_suffix) + ".csv"):
+if not os.path.exists(folder_path):
+    os.makedirs(folder_path)
+while os.path.isfile(folder_path + file_root + str(file_suffix) + ".csv"):
     file_suffix += 1
 
-file = csv.writer(open("imu_dump" + str(file_suffix) + ".csv", 'w'),
-                  delimiter=DEL, quotechar='|', quoting=csv.QUOTE_MINIMAL)
+file = csv.writer(open(folder_path + file_root + str(file_suffix) + ".csv", 'w'),
+                  delimiter=',')
 file.writerow("accX,accY,accZ,gyroX,gyroY,gyroZ,magX,magY,magZ,baroTemp,baroPressure")
 
 IMU.detectIMU()     # Detect if BerryIMUv1 or BerryIMUv2 is connected.
@@ -111,19 +115,18 @@ try:
     while True:
         baroValues = getBaroValues(bus)
 
-        print(str(IMU.readACCx()) + DEL + str(IMU.readACCy()) + DEL
-              + str(IMU.readACCz()) + "\t" + str(IMU.readGYRx()) + DEL
-              + str(IMU.readGYRy()) + DEL + str(IMU.readGYRz()) + "\t"
+        print(str(IMU.readACCx() * 0.244 / 1000) + DEL + str(IMU.readACCy() * 0.244 / 1000) + DEL
+              + str(IMU.readACCz() * 0.244 / 1000) + "\t\t" + str(IMU.readGYRx() * 0.070) + DEL
+              + str(IMU.readGYRy() * 0.070) + DEL + str(IMU.readGYRz() * 0.070) + "\t\t"
               + str(IMU.readMAGx()) + DEL + str(IMU.readMAGy()) + DEL
-              + str(IMU.readMAGz()) + "\t" + baroValues[0] + DEL + baroValues[1])
+              + str(IMU.readMAGz()) + "\t\t" + str(baroValues[0]) + DEL + str(baroValues[1]))
 
-        csvLine = (str(IMU.readACCx()) + DEL + str(IMU.readACCy()) + DEL
-                   + str(IMU.readACCz()) + DEL + str(IMU.readGYRx()) + DEL
-                   + str(IMU.readGYRy()) + DEL + str(IMU.readGYRz()) + DEL
+        csvLine = (str(IMU.readACCx() * 0.244 / 1000) + DEL + str(IMU.readACCy() * 0.244 / 1000) + DEL
+                   + str(IMU.readACCz() * 0.244 / 1000) + DEL + str(IMU.readGYRx() * 0.070) + DEL
+                   + str(IMU.readGYRy() * 0.070) + DEL + str(IMU.readGYRz() * 0.070) + DEL
                    + str(IMU.readMAGx()) + DEL + str(IMU.readMAGy()) + DEL
-                   + str(IMU.readMAGz()) + baroValues[0] + DEL + baroValues[1])
+                   + str(IMU.readMAGz()) + str(baroValues[0]) + DEL + str(baroValues[1]))
         file.writerow(csvLine)
-        time.sleep(0.1)
 
 except KeyboardInterrupt:
     pass
