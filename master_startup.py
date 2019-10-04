@@ -5,6 +5,7 @@ import smbus
 import enum
 import math
 import datetime
+import BMP280 as barometer
 import RPi.GPIO as io
 from imu_utils import IMU
 
@@ -36,16 +37,17 @@ class FlightState(enum):
 
 
 class IMUData:
+    # Units:
+    # - time: seconds
+    # - acc: [x, y, z] m/s^2
+    # - gyro: [x, y, z] deg/s
+    # - mag: [x, y, z] µTesla?
+    # - baro: [degC, pressure] deg celsius, hPa
+
     # https://stackoverflow.com/questions/68645/are-static-class-variables-possible-in-python
     start_time = None
-    # acc = [None, None, None]
-    # gyro = [None, None, None]
-    # mag = [None, None, None]
-    # baroPressure?
-    # baroTemp?
-    # events = []
 
-    def __init__(self, flight_state, time=None, acc=None, gyro=None, mag=None):
+    def __init__(self, flight_state, time=None, acc=None, gyro=None, mag=None, baro=None):
         # TODO: Add Barometer recording
         self.flight_state = flight_state
 
@@ -74,6 +76,12 @@ class IMUData:
         else:
             self.mag = mag
 
+        if(baro == None):
+            tuple = barometer.getBaroValues()
+            self.baro = [tuple[0], tuple[1]]
+        else:
+            self.baro = baro
+
     def add_event(self, event):
         self.events.append(event)
 
@@ -92,7 +100,7 @@ class IMUData:
             events_as_string += event + ", "
 
         return [time, flight_state.name, acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2],
-                mag[0], mag[1], mag[2], events_as_string]
+                mag[0], mag[1], mag[2], baro[0], baro[1], events_as_string]
 
 
 # Stores which state of flight the rocket is currently in.
