@@ -25,7 +25,8 @@ class FlightState(enum):
     # Python Enum type: https://www.geeksforgeeks.org/enum-in-python
     ON_PAD = 1
     LAUNCHED = 2
-    LANDED = 3
+    IN_FREEFALL = 3
+    LANDED = 4
 
 
 class IMUData:
@@ -88,6 +89,8 @@ try:
             # TODO: Compute and send target to ESC
             pass
         elif flight_state == FlightState.LAUNCHED:
+            pass
+        elif flight_state == FlightState.IN_FREEFALL:
             pass
         elif flight_state == FlightState.LANDED:
             pass
