@@ -5,6 +5,7 @@ import smbus
 import enum
 import math
 import datetime
+import subprocess
 import BMP280 as barometer
 import RPi.GPIO as io
 from imu_utils import IMU
@@ -112,6 +113,9 @@ class IMUData:
 # Stores which state of flight the rocket is currently in.
 current_flight_state = FlightState.ON_PAD
 
+# Placeholder for datetime object.
+launch_time = None
+
 try:
     # Init GPIO PWM output for ESC
     io.setwarnings(False)
@@ -157,9 +161,16 @@ try:
             # If we're seeing >2g's, then we've almost certainly launched.
             if(imu_data.get_acc_magnitude() > 2 * 9.81):
                 current_flight_state = FlightState.LAUNCHED
+                launch_time = datetime.datetime.now()
                 imu_data.add_event("launched")
                 esc_pwm.ChangeDutyCycle(esc_max_duty)
         elif current_flight_state == FlightState.LAUNCHED:
+            if datetime.datetime.now() > launch_time + datetime.timedelta(seconds=10):
+                # Begin shutdown procedure
+                imu_data.add_event("FTS automatic trigger: 10s from launch")
+                log_file.writerow(imu_data.formatted_for_log())
+                break
+
             # If we're seeing <2g's, then we've almost certainly reached apogee.
             if(imu_data.get_acc_magnitude() > 2 * 9.81):
                 current_flight_state = FlightState.IN_FREEFALL
@@ -189,3 +200,7 @@ esc_pwm.ChangeDutyCycle(esc_min_duty)
 time.sleep(1)
 esc_pwm.stop()
 gpio.cleanup()
+
+
+# ENABLE FOR FLIGHT: (MUST BE RUN AS SUPER USER FOR THIS TO WORK!!!!!!!!!!)
+# subprocess.call(["sudo", "shutdown", "-h", "now"])
