@@ -216,5 +216,8 @@ esc_pwm.stop()
 gpio.cleanup()
 
 
+# DISABLE FOR FLIGHT:
+print("Shutting down...")
+time.sleep(3)
 # ENABLE FOR FLIGHT: (MUST BE RUN AS SUPER USER FOR THIS TO WORK!!!!!!!!!!)
 # subprocess.call(["sudo", "shutdown", "-h", "now"])
