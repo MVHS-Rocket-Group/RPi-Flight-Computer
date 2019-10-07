@@ -6,6 +6,7 @@ import enum
 import math
 import datetime
 import subprocess
+import picamera
 import BMP280 as barometer
 import RPi.GPIO as io
 from imu_utils import IMU
@@ -116,6 +117,11 @@ current_flight_state = FlightState.ON_PAD
 # Placeholder for datetime object.
 launch_time = None
 
+cam = picamera.PiCamera()
+# camera.resolution = (640, 480)
+cam.resolution = (1280, 720)
+
+
 try:
     # Init GPIO PWM output for ESC
     io.setwarnings(False)
@@ -133,20 +139,28 @@ try:
     IMU.initIMU()       # Initialise the accelerometer, gyroscope and compass
 
     # Start log file
-    folder_path = "flight_logs/"
-    file_root = "flight_log"
-    file_suffix = 0
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-    while os.path.isfile(folder_path + file_root + str(file_suffix) + ".csv"):
-        file_suffix += 1
+    log_folder = "flight_logs/"
+    log_file = "flight_log"
+    log_file_suffix = 0
+    if not os.path.exists(log_folder):
+        os.makedirs(log_folder)
+    while os.path.isfile(log_folder + log_file + str(log_file_suffix) + ".csv"):
+        log_file_suffix += 1
 
-    log_file = csv.writer(open(folder_path + file_root + str(file_suffix) + ".csv", 'w'),
+    log_file = csv.writer(open(log_folder + log_file + str(log_file_suffix) + ".csv", 'w'),
                           delimiter=',')
     log_file.writerow(["elapsed time", "flight state", "accX", "accY", "accZ", "gyroX",
                        "gyroY", "gyroZ", "magX", "magY", "magZ", "baroTemp", "baroPressure", "events"])
 
-    # TODO: Start camera recording (do we want to do this later?)
+    # https://picamera.readthedocs.io/en/release-1.13/api_camera.html#picamera.PiCamera.start_recording
+    recording_folder = "recordings/"
+    recording_file = 0
+    while os.path.isfile(recording_folder + str(recording_file) + ".h264"):
+        recording_file += 1
+
+    print("Started recording to file " + str(recording_file) + ".h264 ...")
+    cam.start_recording(recording_folder +
+                        str(recording_file) + ".mp4", format="h264")
 
     # Main Loop
     while True:
@@ -195,7 +209,7 @@ except KeyboardInterrupt:
     log_file.writerow(imu_data.formatted_for_log())
     pass
 
-# TODO: Stop camera recording
+cam.stop_recording()
 esc_pwm.ChangeDutyCycle(esc_min_duty)
 time.sleep(1)
 esc_pwm.stop()
