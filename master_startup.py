@@ -110,6 +110,9 @@ class IMUData:
         return [time, flight_state.name, acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2],
                 mag[0], mag[1], mag[2], baro[0], baro[1], events_as_string]
 
+    def get_events_list(self):
+        return (self.time, self.events)
+
 
 # Stores which state of flight the rocket is currently in.
 current_flight_state = FlightState.ON_PAD
@@ -200,6 +203,13 @@ try:
 
         # Log current system state to file
         log_file.writerow(imu_data.formatted_for_log())
+
+        # REMOVE FOR FLIGHT!
+        events = imu_data.get_events_list()
+        if not events == None:
+            print("Events produced @ t=" + events[0])
+            for event in events[1]:
+                print(event)
 
         time.sleep(loop_period)
 
