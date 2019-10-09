@@ -6,19 +6,19 @@ import enum
 import math
 import datetime
 import subprocess
-import picamera
+import picamera as picam
 import BMP280 as barometer
 import RPi.GPIO as io
 from imu_utils import IMU
 
-esc_pwm_pin = 15
+ESC_PWM_PIN = 15
 # frequency (Hz) = 1 / period (sec)
-esc_pwm_freq = 1 / 0.02
+ESC_PWM_FREQ = 1 / 0.02
 # Duty cycle percentage when firewalling the throttle.
-esc_max_duty = 100 * 2.0 / 20.0
+ESC_MAX_DUTY = 100 * 2.0 / 20.0
 # Duty cycle percentage when at idle throttle.
-esc_min_duty = 100 * 1.0 / 20.0
-# Handle for control over the ESC PWM pin. Setup later in `try` block.
+ESC_MIN_DUTY = 100 * 1.0 / 20.0
+# Handle for control over the ESC PWM pin. Initialized later in `try` block.
 esc_pwm = None
 
 # Conversion from encoded value to m/s^2
@@ -27,7 +27,7 @@ IMU_ACC_COEFF = 0.244 / 1000.0 * 9.81
 IMU_GYRO_COEFF = 0.070  # Gyro deg/s/ per LSB.
 
 # Loop period (sec)
-loop_period = 1.0 / 10.0
+LOOP_PERIOD = 1.0 / 10.0
 
 
 class FlightState(enum):
@@ -50,7 +50,6 @@ class IMUData:
     start_time = None
 
     def __init__(self, flight_state, time=None, acc=None, gyro=None, mag=None, baro=None):
-        # TODO: Add Barometer recording
         self.flight_state = flight_state
 
         if(time == None):
@@ -119,8 +118,9 @@ current_flight_state = FlightState.ON_PAD
 
 # Placeholder for datetime object.
 launch_time = None
+landed_time = None
 
-cam = picamera.PiCamera()
+cam = picam.PiCamera()
 # camera.resolution = (640, 480)
 cam.resolution = (1280, 720)
 
@@ -129,17 +129,25 @@ try:
     # Init GPIO PWM output for ESC
     io.setwarnings(False)
     io.setmode(io.BOARD)
-    io.setup(esc_pwm_pin, io.OUT)
+    io.setup(ESC_PWM_PIN, io.OUT)
 
     # Setup the PWM pin and set it to min command.
-    esc_pwm = io.PWM(esc_pwm_pin, esc_pwm_freq)
-    esc_pwm.start(esc_min_duty)
+    esc_pwm = io.PWM(ESC_PWM_PIN, ESC_PWM_FREQ)
+    esc_pwm.start(ESC_MIN_DUTY)
+    # Let the ESCs sample the duty cycle of ESC_MIN_DUTY.
+    time.sleep(3)
+    print("ESC MIN_DUTY calibration performed")
 
-    # TODO: Spin up both fans for a second or two.
+    # Spin up both fans for a test.
+    esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
+    time.sleep(1.5)
+    esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
+    print("ESC self-test performed")
 
     # Init IMU
     IMU.detectIMU()     # Detect if BerryIMUv1 or BerryIMUv2 is connected.
     IMU.initIMU()       # Initialise the accelerometer, gyroscope and compass
+    print("IMU Initialized")
 
     # Start log file
     log_folder = "flight_logs/"
@@ -154,51 +162,74 @@ try:
                           delimiter=',')
     log_file.writerow(["elapsed time", "flight state", "accX", "accY", "accZ", "gyroX",
                        "gyroY", "gyroZ", "magX", "magY", "magZ", "baroTemp", "baroPressure", "events"])
+    print("Log file started: " + log_folder +
+          log_file + str(log_file_suffix) + ".csv")
 
     # https://picamera.readthedocs.io/en/release-1.13/api_camera.html#picamera.PiCamera.start_recording
-    recording_folder = "recordings/"
-    recording_file = 0
-    while os.path.isfile(recording_folder + str(recording_file) + ".h264"):
-        recording_file += 1
+    video_folder = "recordings/"
+    video_file = "payload_recording"
+    video_file_suffix = 0
+    if not os.path.exists(video_folder):
+        os.makedirs(video_folder)
+    while os.path.isfile(video_folder + video_file + str(video_file_suffix) + ".h264"):
+        video_file_suffix += 1
 
-    print("Started recording to file " + str(recording_file) + ".h264 ...")
-    cam.start_recording(recording_folder +
-                        str(recording_file) + ".mp4", format="h264")
+    print("Started recording to file: " + str(video_file_suffix) + ".h264 ...")
+    cam.start_recording(
+        video_folder + str(video_file_suffix) + ".mp4", format="h264")
 
     # Main Loop
     while True:
         # Read in motion data from IMU.
         imu_data = IMUData(current_flight_state)
 
-        # TODO: Compute and send target to ESC
         if current_flight_state == FlightState.ON_PAD:
             # Idle until we detect a launch.
-            esc_pwm.ChangeDutyCycle(esc_min_duty)
+            esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
 
             # If we're seeing >2g's, then we've almost certainly launched.
             if(imu_data.get_acc_magnitude() > 2 * 9.81):
                 current_flight_state = FlightState.LAUNCHED
                 launch_time = datetime.datetime.now()
                 imu_data.add_event("launched")
-                esc_pwm.ChangeDutyCycle(esc_max_duty)
+                esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
         elif current_flight_state == FlightState.LAUNCHED:
-            if datetime.datetime.now() > launch_time + datetime.timedelta(seconds=10):
-                # Begin shutdown procedure
-                imu_data.add_event("FTS automatic trigger: 10s from launch")
-                log_file.writerow(imu_data.formatted_for_log())
-                break
+            # if datetime.datetime.now() > launch_time + datetime.timedelta(seconds=10):
+            #     # Begin shutdown procedure
+            #     imu_data.add_event("FTS automatic trigger: 10s from launch")
+            #     log_file.writerow(imu_data.formatted_for_log())
+            #     break
+
+            # Set full power.
+            esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
             # If we're seeing <2g's, then we've almost certainly reached apogee.
             if(imu_data.get_acc_magnitude() > 2 * 9.81):
                 current_flight_state = FlightState.IN_FREEFALL
                 imu_data.add_event("in freefall")
         elif current_flight_state == FlightState.IN_FREEFALL:
-            pass
+            # if datetime.datetime.now() > launch_time + datetime.timedelta(seconds=10):
+            #     # Begin shutdown procedure
+            #     imu_data.add_event("FTS automatic trigger: 10s from launch")
+            #     log_file.writerow(imu_data.formatted_for_log())
+            #     break
+
+            # Set full power.
+            esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
+
+            # TODO: What condition trips this state into LANDED?
+            # landed_time = datetime.datetime.now()
         elif current_flight_state == FlightState.LANDED:
-            pass
+            # Set zero power.
+            esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
+
+            if datetime.datetime.now() > landed_time + datetime.timedelta(minutes=1):
+                # Begin shutdown procedure
+                imu_data.add_event("FTS automatic trigger: 10s from launch")
+                log_file.writerow(imu_data.formatted_for_log())
+                break
 
         # TODO: Did any important events get triggered?
-        # TODO: Did the flight state change? e.g. did we just launch, just land?
         # TODO: Has it been >1 munute since landing? If so, shut off the camera recording and shut down RPi
 
         # Log current system state to file
@@ -211,7 +242,7 @@ try:
             for event in events[1]:
                 print(event)
 
-        time.sleep(loop_period)
+        time.sleep(LOOP_PERIOD)
 
 except KeyboardInterrupt:
     imu_data = IMUData(current_flight_state)
@@ -220,7 +251,7 @@ except KeyboardInterrupt:
     pass
 
 cam.stop_recording()
-esc_pwm.ChangeDutyCycle(esc_min_duty)
+esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
 time.sleep(1)
 esc_pwm.stop()
 gpio.cleanup()
