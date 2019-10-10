@@ -226,7 +226,6 @@ try:
                 break
 
         # TODO: Did any important events get triggered?
-        # TODO: Has it been >1 munute since landing? If so, shut off the camera recording and shut down RPi
 
         # Log current system state to file
         log_file.writerow(imu_data.formatted_for_log())
