@@ -54,7 +54,7 @@ def get_baro_values(bus):
     #		0xa0(00)	stand_by time = 1000 ms
     bus.write_byte_data(0x77, 0xf5, 0xa0)
 
-    time.sleep(0.5)
+    time.sleep(0.01)
 
     # bmp280 address, 0x77(118)
     # read data back from 0xf7(247), 8 bytes

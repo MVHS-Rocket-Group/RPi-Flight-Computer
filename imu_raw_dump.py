@@ -44,19 +44,21 @@ try:
         mag = [IMU.readMAGx(), IMU.readMAGy(), IMU.readMAGz()]
 
         filter.add_data(acc, gyro, mag)
-        filtered = filter.update_filter()
+        filtered=filter.update_filter()
 
         print(str(acc[0]) + DEL + str(acc[1]) + DEL + str(acc[2]) + "\t\t" + str(gyro[0]) + DEL + str(gyro[1]) + DEL + str(gyro[2]) +
               "\t\t" + str(mag[0]) + DEL + str(mag[1]) + DEL + str(mag[2]) + "\t\t" + str(baroValues[0]) + DEL + str(baroValues[1]) + "\t\t" +
-              filtered[0][0] + DEL + filtered[0][1] + DEL + filtered[0][2] + DEL +
-              filtered[1][0] + DEL + filtered[1][1] + DEL + filtered[1][2] + DEL +
-              filtered[2][0] + DEL + filtered[2][1] + DEL + filtered[2][2])
+              str(filtered[0][0]) + DEL + str(filtered[0][1]) + DEL + str(filtered[0][2]) + DEL +
+              str(filtered[1][0]) + DEL + str(filtered[1][1]) + DEL + str(filtered[1][2]) + DEL +
+              str(filtered[2][0]) + DEL + str(filtered[2][1]) + DEL + str(filtered[2][2]))
 
         file.writerow([acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2],
                        mag[0], mag[1], mag[2], baroValues[0], baroValues[1],
-                       filtered[0][0], filtered[0][1], filtered[0][2],
-                       filtered[1][0], filtered[1][1], filtered[1][2],
-                       filtered[2][0], filtered[2][1], filtered[2][2]])
+                       str(filtered[0][0]), str(
+                           filtered[0][1]), str(filtered[0][2]),
+                       str(filtered[1][0]), str(
+                           filtered[1][1]), str(filtered[1][2]),
+                       str(filtered[2][0]), str(filtered[2][1]), str(filtered[2][2])])
 
 except KeyboardInterrupt:
     pass

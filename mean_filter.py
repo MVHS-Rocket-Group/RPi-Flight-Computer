@@ -11,13 +11,13 @@ class IMUFilter:
         self.mag_history.append(mag)
 
         if len(self.acc_history) > self.max_buffer_length:
-            self.acc_history.remove(0)
+            del self.acc_history[0]
 
         if len(self.gyro_history) > self.max_buffer_length:
-            self.gyro_history.remove(0)
+            del self.gyro_history[0]
 
         if len(self.mag_history) > self.max_buffer_length:
-            self.mag_history.remove(0)
+            del self.mag_history[0]
 
     def update_filter(self):
         acc_total = [0.0, 0.0, 0.0]
