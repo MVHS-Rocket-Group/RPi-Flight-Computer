@@ -4,13 +4,19 @@
 
 - `BerryIMU/*`: Example and library code for the BerryIMU from Ozzymaker.
 - `Old Software/*`: Software from initial September 5, 2019 dump of the `/home/pi` directory.
+- `Flight-Controller.code-workspace`: VSCode workspace file.
+- `IMU.py`, `LSM9DS0.py`, `LSM9DS1.py`: IMU library.
+- `BMP280.py`: Barometer library.
+- `master_startup.py`: Script to launch at RPi startup.
+- `mean_filter.py`: Time-averaged (*rolling average*) IMU filter.
+- `picamera_demo.py`: Demo for recording video from the Pi's Camera Module.
+- `pwm_control_demo.py`: Demo for interacting with PWM ESCs over GPIO.
 
 ## Principal control flow
 
 - Embedded RPi Python script functions
   - Flight Controller (*PWM Output*)
-  - IMU & Event data logger
-    - [IMU](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor) data recording (*filtered through Kalman filter*)
+  - [Flight state data logger](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor)
     - Important flight events: e.g. Launch detection, arming of different systems, control loop decisions, deployments (*detected via accelerometer edges?*)
     - Flight duration
   - Camera recorder
@@ -49,14 +55,13 @@ Therefore:
 ## Helpful Resources
 
 - ESC
-  - [RPi GPIO PWM](https://www.electronicshub.org/raspberry-pi-servo-motor-interface-tutorial)
   - [ESC Specs](https://hobbyking.com/en_us/turnigy-monster-2000-200a-4-12s-brushless-esc.html)
     - [ESC manual](https://cdn-global-hk.hobbyking.com/media/file/969150300X462171X21.pdf)
     - [ESC programming card](https://hobbyking.com/en_us/turnigy-monster-2000-esc-programming-card.html)
 
 - BerryIMU
-  - ~~[C++ API resources](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor/#Guides%20and%20Tutorials)~~
+  - ~~[C++ resources](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor/#Guides%20and%20Tutorials)~~
   - [Kalman Filter](http://ozzmaker.com/guide-interfacing-gyro-accelerometer-raspberry-pi-kalman-filter)
-  - [Interpreting values](http://ozzmaker.com/accelerometer-to-g)
-- ~~[RaspiCam C++ API](https://www.uco.es/investiga/grupos/ava/node/40)~~
-- ~~[WiringPi C++ API](https://www.youtube.com/watch?v=J6KsTz6hjfU)~~
+  - [Interpreting raw values](http://ozzmaker.com/accelerometer-to-g)
+- ~~[RaspiCam C++](https://www.uco.es/investiga/grupos/ava/node/40)~~
+- ~~[WiringPi C++](https://www.youtube.com/watch?v=J6KsTz6hjfU)~~
