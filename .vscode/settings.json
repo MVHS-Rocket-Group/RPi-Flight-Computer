@@ -2,10 +2,18 @@
   "python.formatting.provider": "autopep8",
   "python.pythonPath": "C:\\Program Files\\Python37\\python.exe",
   "cSpell.words": [
+    "acc",
+    "baro",
+    "coeff",
     "escs",
     "gpio",
     "hectopascal",
+    "imu",
+    "isfile",
     "kalman",
-    "ozzymaker"
+    "ozzymaker",
+    "picam",
+    "picamera",
+    "smbus"
   ]
 }

@@ -10,7 +10,7 @@
 - `master_startup.py`: Script to launch at RPi startup.
 - `mean_filter.py`: Time-averaged (*rolling average*) IMU filter.
 - `picamera_demo.py`: Demo for recording video from the Pi's Camera Module.
-- `pwm_control_demo.py`: Demo for interacting with PWM ESCs over GPIO.
+- `pwm_demo.py`: Demo for interacting with PWM ESCs over GPIO.
 
 ## Principal control flow
 

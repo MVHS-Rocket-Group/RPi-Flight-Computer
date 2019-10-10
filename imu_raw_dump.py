@@ -8,7 +8,7 @@ import mean_filter
 DEL = ","  # Data item delimiter.
 GYRO_GAIN = 0.070  # Gyro deg/s/ per LSB.
 # Magnetometer min/max calibrated values.
-MAG_CALIB = [[None, None], [None, None], [None, None]]
+MAG_CALIBRATION = [[None, None], [None, None], [None, None]]
 
 # Get I2C bus
 bus = smbus.SMBus(1)
