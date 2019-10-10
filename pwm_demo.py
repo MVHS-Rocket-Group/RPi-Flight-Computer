@@ -21,10 +21,12 @@ try:
     esc_pwm = io.PWM(ESC_PWM_PIN, ESC_PWM_FREQ)
     esc_pwm.start(ESC_MIN_DUTY)
 
+    time.sleep(3)
+
     print("Setting quarter power")
     esc_pwm.ChangeDutyCycle(
         0.25 * (ESC_MAX_DUTY - ESC_MIN_DUTY) + ESC_MIN_DUTY)
-    for count in range(5):
+    for count in range(10):
         time.sleep(1)
         print(str(count) + "...")
 
