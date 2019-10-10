@@ -1,4 +1,5 @@
 import smbus
+import time
 
 
 def get_baro_values(bus):
