@@ -194,12 +194,6 @@ try:
                 imu_data.add_event("launched")
                 esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
         elif current_flight_state == FlightState.LAUNCHED:
-            # if datetime.datetime.now() > launch_time + datetime.timedelta(seconds=10):
-            #     # Begin shutdown procedure
-            #     imu_data.add_event("FTS automatic trigger: 10s from launch")
-            #     log_file.writerow(imu_data.formatted_for_log())
-            #     break
-
             # Set full power.
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
@@ -208,12 +202,6 @@ try:
                 current_flight_state = FlightState.IN_FREEFALL
                 imu_data.add_event("in freefall")
         elif current_flight_state == FlightState.IN_FREEFALL:
-            # if datetime.datetime.now() > launch_time + datetime.timedelta(seconds=10):
-            #     # Begin shutdown procedure
-            #     imu_data.add_event("FTS automatic trigger: 10s from launch")
-            #     log_file.writerow(imu_data.formatted_for_log())
-            #     break
-
             # Set full power.
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
