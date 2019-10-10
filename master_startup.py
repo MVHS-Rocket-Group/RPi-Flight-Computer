@@ -10,7 +10,6 @@ import picamera as picam
 import BMP280 as barometer
 import RPi.GPIO as io
 from imu_utils import IMU
-from subprocess import call
 
 
 ESC_PWM_PIN = 15
@@ -178,7 +177,7 @@ try:
 
     print("Started recording to file: " + str(video_file_suffix) + ".h264 ...")
     cam.start_recording(
-        video_folder + str(video_file_suffix) + ".mp4", format="h264") # The only question is, does this automatically apply asynchronously? Might want to look into that.
+        video_folder + str(video_file_suffix) + ".mp4", format="h264") 
 
     # Main Loop
     while True:
@@ -208,7 +207,7 @@ try:
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
             # If the acceleration magnitude is next to nothing following the freefall, set state to LANDED
-            if imu_data.get_acc_magnitude() < .1 * 9.81 && imu_data.get_acc_magnitude() > -.1 * 9.81 # Accounting random noise
+            if imu_data.get_acc_magnitude() < .1 * 9.81 and imu_data.get_acc_magnitude() > -.1 * 9.81 # Accounting random noise
             	landed_time = datetime.datetime.now()
             	current_flight_state = FlightState.LANDED
         elif current_flight_state == FlightState.LANDED:
@@ -221,11 +220,12 @@ try:
                 imu_data.add_event("FTS automatic trigger: 10s from launch")
                 log_file.writerow(imu_data.formatted_for_log())
                 time.sleep(10) # Not certain how the module works -- frankly, giving it some time to encode seems sapient
-                call("sudo shutdown -h now", shell=True)
+                subprocess.call("sudo shutdown -h now", shell=True)
 
                 break
 
         # TODO: Did any important events get triggered?
+        # TODO: Check Encoding Time
 
         # Log current system state to file
         log_file.writerow(imu_data.formatted_for_log())
