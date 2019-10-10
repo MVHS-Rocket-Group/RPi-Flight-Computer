@@ -33,7 +33,7 @@ IMU.initIMU()       # Initialise the accelerometer, gyroscope and compass
 try:
     filter = mean_filter.IMUFilter(20)
     while True:
-        baroValues = baro.getBaroValues(bus)
+        baroValues = baro.get_baro_values(bus)
         # Units: g's
         acc = [IMU.readACCx() * 0.244 / 1000, IMU.readACCy() * 0.244 /
                1000, IMU.readACCz() * 0.244 / 1000]

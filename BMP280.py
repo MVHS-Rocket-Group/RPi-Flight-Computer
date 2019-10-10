@@ -1,7 +1,7 @@
 import smbus
 
 
-def getbarovalues(bus):
+def get_baro_values(bus):
     # bmp280 address, 0x77
     # read data back from 0x88(136), 24 bytes
     b1 = bus.read_i2c_block_data(0x77, 0x88, 24)

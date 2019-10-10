@@ -84,7 +84,7 @@ class IMUData:
             self.mag = mag
 
         if(baro == None):
-            tuple = barometer.getBaroValues()
+            tuple = barometer.get_baro_values()
             self.baro = [tuple[0], tuple[1]]
         else:
             self.baro = baro
