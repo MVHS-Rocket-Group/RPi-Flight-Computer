@@ -208,7 +208,7 @@ try:
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
             # If the acceleration magnitude is next to nothing following the freefall, set state to LANDED
-            if imu_data.get_acc_magnitude < .1 * 9.81 && imu_data.get_acc_magnitude > -.1 * 9.81 # Accounting random noise
+            if imu_data.get_acc_magnitude() < .1 * 9.81 && imu_data.get_acc_magnitude() > -.1 * 9.81 # Accounting random noise
             	landed_time = datetime.datetime.now()
             	current_flight_state = FlightState.LANDED
         elif current_flight_state == FlightState.LANDED:
