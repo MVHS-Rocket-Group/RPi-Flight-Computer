@@ -26,7 +26,9 @@ while os.path.isfile(folder_path + file_root + str(file_suffix) + ".csv"):
 file = csv.writer(open(folder_path + file_root + str(file_suffix) + ".csv", 'w'),
                   delimiter=',')
 file.writerow(["time (s)", "accX", "accY", "accZ", "gyroX", "gyroY", "gyroZ",
-               "magX", "magY", "magZ", "baroTemp", "baroPressure"])
+               "magX", "magY", "magZ", "baroTemp", "baroPressure", "accX Filter",
+               "accY Filter", "accZ Filter", "gyroX Filter", "gyroY Filter",
+               "gyroZ Filter", "magX Filter", "magY Filter", "magZ Filter"])
 
 IMU.detectIMU()     # Detect if BerryIMUv1 or BerryIMUv2 is connected.
 IMU.initIMU()       # Initialise the accelerometer, gyroscope and compass
@@ -46,21 +48,22 @@ try:
         mag = [IMU.readMAGx(), IMU.readMAGy(), IMU.readMAGz()]
 
         filter.add_data(acc, gyro, mag)
-        filtered=filter.update_filter()
+        clean = filter.update_filter()
 
-        print(str(datetime.datetime.now() - start_time) + str(acc[0]) + DEL + str(acc[1]) + DEL + str(acc[2]) + "\t\t" + str(gyro[0]) + DEL + str(gyro[1]) + DEL + str(gyro[2]) +
-              "\t\t" + str(mag[0]) + DEL + str(mag[1]) + DEL + str(mag[2]) + "\t\t" + str(baroValues[0]) + DEL + str(baroValues[1]) + "\t\t" +
-              str(filtered[0][0]) + DEL + str(filtered[0][1]) + DEL + str(filtered[0][2]) + DEL +
-              str(filtered[1][0]) + DEL + str(filtered[1][1]) + DEL + str(filtered[1][2]) + DEL +
-              str(filtered[2][0]) + DEL + str(filtered[2][1]) + DEL + str(filtered[2][2]))
+        print(str(datetime.datetime.now() - start_time) + str(acc[0]) + DEL +
+              str(acc[1]) + DEL + str(acc[2]) + "\t\t" + str(gyro[0]) + DEL +
+              str(gyro[1]) + DEL + str(gyro[2]) + "\t\t" + str(mag[0]) + DEL +
+              str(mag[1]) + DEL + str(mag[2]) + "\t\t" + str(baroValues[0]) + DEL +
+              str(baroValues[1]) + "\t\t" +
+              str(clean[0][0]) + DEL + str(clean[0][1]) + DEL + str(clean[0][2]) + DEL +
+              str(clean[1][0]) + DEL + str(clean[1][1]) + DEL + str(clean[1][2]) + DEL +
+              str(clean[2][0]) + DEL + str(clean[2][1]) + DEL + str(clean[2][2]))
 
-        file.writerow([datetime.datetime.now() - start_time, acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2],
-                       mag[0], mag[1], mag[2], baroValues[0], baroValues[1],
-                       str(filtered[0][0]), str(
-                           filtered[0][1]), str(filtered[0][2]),
-                       str(filtered[1][0]), str(
-                           filtered[1][1]), str(filtered[1][2]),
-                       str(filtered[2][0]), str(filtered[2][1]), str(filtered[2][2])])
+        file.writerow([datetime.datetime.now() - start_time, acc[0], acc[1], acc[2],
+                       gyro[0], gyro[1], gyro[2], mag[0], mag[1], mag[2], baroValues[0], baroValues[1],
+                       str(clean[0][0]), str(clean[0][1]), str(clean[0][2]),
+                       str(clean[1][0]), str(clean[1][1]), str(clean[1][2]),
+                       str(clean[2][0]), str(clean[2][1]), str(clean[2][2])])
 
 except KeyboardInterrupt:
     pass
