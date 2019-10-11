@@ -199,7 +199,7 @@ try:
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
             # If we're seeing <2g's, then we've almost certainly lost thrust due to SRM burnout.
-            if(imu_data.get_acc_magnitude() < 2 * 9.81):
+            if imu_data.get_acc_magnitude() < 2 * 9.81:
                 current_flight_state = FlightState.IN_FREEFALL
                 imu_data.add_event("in freefall")
         elif current_flight_state == FlightState.IN_FREEFALL:

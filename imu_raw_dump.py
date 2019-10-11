@@ -2,6 +2,7 @@ import time
 import csv
 import os
 import smbus
+import datetime
 import IMU
 import BMP280 as baro
 import mean_filter
@@ -24,7 +25,7 @@ while os.path.isfile(folder_path + file_root + str(file_suffix) + ".csv"):
 
 file = csv.writer(open(folder_path + file_root + str(file_suffix) + ".csv", 'w'),
                   delimiter=',')
-file.writerow(["accX", "accY", "accZ", "gyroX", "gyroY", "gyroZ",
+file.writerow(["time (s)", "accX", "accY", "accZ", "gyroX", "gyroY", "gyroZ",
                "magX", "magY", "magZ", "baroTemp", "baroPressure"])
 
 IMU.detectIMU()     # Detect if BerryIMUv1 or BerryIMUv2 is connected.
@@ -32,6 +33,7 @@ IMU.initIMU()       # Initialise the accelerometer, gyroscope and compass
 
 try:
     filter = mean_filter.IMUFilter(20)
+    start_time = datetime.datetime.now()
     while True:
         baroValues = baro.get_baro_values(bus)
         # Units: g's
@@ -46,13 +48,13 @@ try:
         filter.add_data(acc, gyro, mag)
         filtered=filter.update_filter()
 
-        print(str(acc[0]) + DEL + str(acc[1]) + DEL + str(acc[2]) + "\t\t" + str(gyro[0]) + DEL + str(gyro[1]) + DEL + str(gyro[2]) +
+        print((datetime.datetime.now() - start_time) + str(acc[0]) + DEL + str(acc[1]) + DEL + str(acc[2]) + "\t\t" + str(gyro[0]) + DEL + str(gyro[1]) + DEL + str(gyro[2]) +
               "\t\t" + str(mag[0]) + DEL + str(mag[1]) + DEL + str(mag[2]) + "\t\t" + str(baroValues[0]) + DEL + str(baroValues[1]) + "\t\t" +
               str(filtered[0][0]) + DEL + str(filtered[0][1]) + DEL + str(filtered[0][2]) + DEL +
               str(filtered[1][0]) + DEL + str(filtered[1][1]) + DEL + str(filtered[1][2]) + DEL +
               str(filtered[2][0]) + DEL + str(filtered[2][1]) + DEL + str(filtered[2][2]))
 
-        file.writerow([acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2],
+        file.writerow([datetime.datetime.now() - start_time, acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2],
                        mag[0], mag[1], mag[2], baroValues[0], baroValues[1],
                        str(filtered[0][0]), str(
                            filtered[0][1]), str(filtered[0][2]),
