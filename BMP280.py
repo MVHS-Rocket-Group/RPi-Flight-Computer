@@ -8,7 +8,7 @@ def get_baro_values(bus):
     b1 = bus.read_i2c_block_data(0x77, 0x88, 24)
 
     # convert the data
-    # temp coefficents
+    # temp coefficients
     dig_t1 = b1[1] * 256 + b1[0]
     dig_t2 = b1[3] * 256 + b1[2]
     if dig_t2 > 32767:
@@ -17,7 +17,7 @@ def get_baro_values(bus):
     if dig_t3 > 32767:
         dig_t3 -= 65536
 
-    # pressure coefficents
+    # pressure coefficients
     dig_p1 = b1[7] * 256 + b1[6]
     dig_p2 = b1[9] * 256 + b1[8]
     if dig_p2 > 32767:
@@ -71,7 +71,7 @@ def get_baro_values(bus):
     var2 = (((adc_t) / 131072.0 - (dig_t1) / 8192.0) *
             ((adc_t) / 131072.0 - (dig_t1) / 8192.0)) * (dig_t3)
     t_fine = (var1 + var2)
-    ctemp = (var1 + var2) / 5120.0
+    temp_celsius = (var1 + var2) / 5120.0
 
     # pressure offset calculations
     var1 = (t_fine / 2.0) - 64000.0
@@ -87,6 +87,6 @@ def get_baro_values(bus):
     pressure = (p + (var1 + var2 + (dig_p7)) / 16.0) / 100
 
     # units:
-    #   - ctemp: celsius
+    #   - temp_celsius: celsius
     #   - pressure: hpa (hectopascal)
-    return (ctemp, pressure)
+    return (temp_celsius, pressure)
