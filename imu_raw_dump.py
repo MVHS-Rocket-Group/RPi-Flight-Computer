@@ -48,7 +48,7 @@ try:
         filter.add_data(acc, gyro, mag)
         filtered=filter.update_filter()
 
-        print((datetime.datetime.now() - start_time) + str(acc[0]) + DEL + str(acc[1]) + DEL + str(acc[2]) + "\t\t" + str(gyro[0]) + DEL + str(gyro[1]) + DEL + str(gyro[2]) +
+        print(str(datetime.datetime.now() - start_time) + str(acc[0]) + DEL + str(acc[1]) + DEL + str(acc[2]) + "\t\t" + str(gyro[0]) + DEL + str(gyro[1]) + DEL + str(gyro[2]) +
               "\t\t" + str(mag[0]) + DEL + str(mag[1]) + DEL + str(mag[2]) + "\t\t" + str(baroValues[0]) + DEL + str(baroValues[1]) + "\t\t" +
               str(filtered[0][0]) + DEL + str(filtered[0][1]) + DEL + str(filtered[0][2]) + DEL +
               str(filtered[1][0]) + DEL + str(filtered[1][1]) + DEL + str(filtered[1][2]) + DEL +
