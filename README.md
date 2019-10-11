@@ -3,7 +3,7 @@
 ## Repository Structure
 
 - `BerryIMU/*`: Example and library code for the BerryIMU from Ozzymaker.
-- `Old Software/*`: Software from initial September 5, 2019 dump of the `/home/pi` directory.
+- `old_software/*`: Software from initial September 5, 2019 dump of the `/home/pi` directory.
 - `Flight-Controller.code-workspace`: VSCode workspace file.
 - `IMU.py`, `LSM9DS0.py`, `LSM9DS1.py`: IMU library.
 - `BMP280.py`: Barometer library.
