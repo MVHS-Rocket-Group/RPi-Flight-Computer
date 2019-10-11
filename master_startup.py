@@ -28,7 +28,7 @@ IMU_ACC_COEFF = 0.244 / 1000.0 * 9.81
 IMU_GYRO_COEFF = 0.070  # Gyro deg/s/ per LSB.
 
 # Loop period (sec)
-LOOP_PERIOD = 1.0 / 10.0
+LOOP_PERIOD = 1.0 / 50.0
 
 
 class FlightState(enum):
@@ -61,14 +61,19 @@ class IMUData:
             self.time = time
 
         if(acc == None):
-            self.acc = [IMU.readACCx() * 0.244 / 1000, -IMU.readACCy() * 0.244 /
-                        1000, -IMU.readACCz() * 0.244 / 1000]
+            self.acc = [IMU.readACCx() * IMU_ACC_COEFF,
+                        -IMU.readACCy() * IMU_ACC_COEFF,
+                        -IMU.readACCz() * IMU_ACC_COEFF]
+            # Compensate for gravitational acceleration.
+            # TODO: Do we want to do some angle calculations to figure out how much to subtract from x, y, and z?
+            self.acc[0] += 9.81
         else:
             self.acc = acc
 
         if(gyro == None):
-            self.gyro = [IMU.readGYRx() * GYRO_GAIN, IMU.readGYRy() *
-                         GYRO_GAIN, IMU.readGYRz() * GYRO_GAIN]
+            self.gyro = [IMU.readGYRx() * GYRO_GAIN,
+                         IMU.readGYRy() * GYRO_GAIN,
+                         IMU.readGYRz() * GYRO_GAIN]
         else:
             self.gyro = gyro
 
