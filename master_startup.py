@@ -232,6 +232,8 @@ try:
                 log_writer.writerow(imu_data.formatted_for_log())
                 break
 
+        # TODO: Add failure case to shutdown after launch + 5 mins.
+
         # Log current system state to file
         log_writer.writerow(imu_data.formatted_for_log())
 
