@@ -15,14 +15,12 @@
 ## Principal control flow
 
 - Embedded RPi Python script functions
-  - Flight Controller (*PWM Output*)
+  - Flight controller (*PWM Output*)
   - [Flight state data logger](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor)
     - Important flight events: e.g. Launch detection, arming of different systems, control loop decisions, deployments (*detected via accelerometer edges?*)
-    - Flight duration
   - Camera recorder
   - Landing buzzer control?
-  - Automatic safe shutdown after landing detected
-    - 1 minute of zero acceleration after flight
+  - Automatic safe shutdown 1 minute after landing detected (*upon impact with the ground*)
 
 - Logger file format
   - CSV text lines: flight state with additional column for events
@@ -63,6 +61,7 @@ From perspective of a cockpit at the nose cone:
 - BerryIMU
   - ~~[C++ resources](http://ozzmaker.com/product/berryimu-accelerometer-gyroscope-magnetometer-barometricaltitude-sensor/#Guides%20and%20Tutorials)~~
   - [Kalman Filter](http://ozzmaker.com/guide-interfacing-gyro-accelerometer-raspberry-pi-kalman-filter)
+  - [Implementing Positioning Algorithms Using Accelerometers](https://www.nxp.com/docs/en/application-note/AN3397.pdf)
   - [Interpreting raw values](http://ozzmaker.com/accelerometer-to-g)
 - ~~[RaspiCam C++](https://www.uco.es/investiga/grupos/ava/node/40)~~
 - ~~[WiringPi C++](https://www.youtube.com/watch?v=J6KsTz6hjfU)~~
