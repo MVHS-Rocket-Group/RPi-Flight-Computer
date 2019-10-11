@@ -56,7 +56,7 @@ class IMUData:
         if(time == None):
             if(start_time == None):
                 start_time == datetime.datetime.now()
-            self.time = datetime.datetime.now() - start_time
+            self.time = (datetime.datetime.now() - start_time).total_seconds()
         else:
             self.time = time
 

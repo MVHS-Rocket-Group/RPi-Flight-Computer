@@ -3,16 +3,22 @@ import csv
 import os
 import smbus
 import datetime
+import math
 import IMU
 import BMP280 as baro
 import mean_filter
-DEL = ","  # Data item delimiter.
+DEL = ", "  # Data item delimiter.
 GYRO_GAIN = 0.070  # Gyro deg/s/ per LSB.
 # Magnetometer min/max calibrated values.
 MAG_CALIBRATION = [[None, None], [None, None], [None, None]]
 
 # Get I2C bus
 bus = smbus.SMBus(1)
+
+
+def form(decimal):
+    # https://stackoverflow.com/questions/783897/truncating-floats-in-python
+    return str(math.floor(decimal * 10**3) / 10**3)
 
 
 folder_path = "imu_raw_dump/"
@@ -50,17 +56,19 @@ try:
         filter.add_data(acc, gyro, mag)
         clean = filter.update_filter()
 
-        print(str(datetime.datetime.now() - start_time) +
-              str(acc[0]) + DEL + str(acc[1]) + DEL + str(acc[2]) + "\t\t" +
-              str(gyro[0]) + DEL + str(gyro[1]) + DEL + str(gyro[2]) + "\t\t" +
-              str(clean[0][0]) + DEL + str(clean[0][1]) + DEL + str(clean[0][2]) + DEL +
-              str(clean[1][0]) + DEL + str(clean[1][1]) + DEL + str(clean[1][2]))
+        print(str((datetime.datetime.now() - start_time).total_seconds()) + DEL +
+              form(acc[0]) + DEL + form(acc[1]) + DEL + form(acc[2]) + "\t\t" +
+              form(gyro[0]) + DEL + form(gyro[1]) + DEL + form(gyro[2]) + "\t\t" +
+              form(clean[0][0]) + DEL + form(clean[0][1]) + DEL + form(clean[0][2]) + DEL +
+              form(clean[1][0]) + DEL + form(clean[1][1]) + DEL + form(clean[1][2]))
 
-        file.writerow([datetime.datetime.now() - start_time, acc[0], acc[1], acc[2],
-                       gyro[0], gyro[1], gyro[2], mag[0], mag[1], mag[2], baroValues[0], baroValues[1],
-                       str(clean[0][0]), str(clean[0][1]), str(clean[0][2]),
-                       str(clean[1][0]), str(clean[1][1]), str(clean[1][2]),
-                       str(clean[2][0]), str(clean[2][1]), str(clean[2][2])])
+        file.writerow([(datetime.datetime.now() - start_time).total_seconds(),
+                        acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2],
+                        mag[0], mag[1], mag[2], baroValues[0], baroValues[1],
+                        str(clean[0][0]), str(clean[0][1]), str(clean[0][2]),
+                        str(clean[1][0]), str(clean[1][1]), str(clean[1][2]),
+                        str(clean[2][0]), str(clean[2][1]), str(clean[2][2])])
 
+        time.sleep(0.05)
 except KeyboardInterrupt:
     pass
