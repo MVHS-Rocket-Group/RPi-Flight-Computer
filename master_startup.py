@@ -216,12 +216,9 @@ try:
 
             if datetime.datetime.now() > landed_time + datetime.timedelta(minutes=1):
                 # Begin shutdown procedure
-                cam.stop_recording() 
                 imu_data.add_event("FTS automatic trigger: 10s from launch")
                 log_file.writerow(imu_data.formatted_for_log())
-                time.sleep(10) # Not certain how the module works -- frankly, giving it some time to encode seems sapient
-                subprocess.call("sudo shutdown -h now", shell=True)
-
+             
                 break
 
         # TODO: Did any important events get triggered?
