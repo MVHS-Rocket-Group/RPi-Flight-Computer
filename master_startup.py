@@ -185,7 +185,6 @@ try:
 
     cam.start_recording(video_folder + video_file +
                         str(video_file_suffix) + ".h264", format="h264")
-    time.sleep(1)
     print("Recording started: " + video_folder +
           video_file + str(video_file_suffix) + ".h264 ...")
 
@@ -259,6 +258,5 @@ io.cleanup()
 
 # DISABLE FOR FLIGHT:
 print("Shutting down...")
-time.sleep(3)
 # ENABLE FOR FLIGHT: (MUST BE RUN AS SUPER USER FOR THIS TO WORK!!!!!!!!!!)
 # subprocess.call(["sudo", "shutdown", "-h", "now"])
