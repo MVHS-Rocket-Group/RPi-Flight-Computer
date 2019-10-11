@@ -178,7 +178,6 @@ try:
     print("Started recording to file: " + str(video_file_suffix) + ".h264 ...")
     cam.start_recording(
         video_folder + str(video_file_suffix) + ".mp4", format="h264") 
-
     # Main Loop
     while True:
         # Read in motion data from IMU.
@@ -218,7 +217,6 @@ try:
                 # Begin shutdown procedure
                 imu_data.add_event("FTS automatic trigger: 10s from launch")
                 log_file.writerow(imu_data.formatted_for_log())
-             
                 break
 
         # TODO: Did any important events get triggered?
@@ -240,8 +238,7 @@ except KeyboardInterrupt:
     imu_data = IMUData(current_flight_state)
     imu_data.add_event("manually terminated by SIGTERM")
     log_file.writerow(imu_data.formatted_for_log())
-    pass
-#Note: We might want to avoid making this redundant with the above shutdown sequence-- I was just noticing that. Perhaps keep the stop recording so that the pass statement still works, while moving cleanup to earlier. Thoughts? 
+    
 cam.stop_recording()
 esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
 time.sleep(1)
