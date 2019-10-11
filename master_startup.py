@@ -11,6 +11,7 @@ import BMP280 as barometer
 import RPi.GPIO as io
 from imu_utils import IMU
 
+
 ESC_PWM_PIN = 15
 # frequency (Hz) = 1 / period (sec)
 ESC_PWM_FREQ = 1 / 0.02
@@ -177,7 +178,7 @@ try:
     print("Started recording to file: " + str(video_file_suffix) + ".h264 ...")
     cam.start_recording(
         video_folder + str(video_file_suffix) + ".mp4", format="h264")
-
+    
     # Main Loop
     while True:
         # Read in motion data from IMU.
@@ -205,8 +206,10 @@ try:
             # Set full power.
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
-            # TODO: What condition trips this state into LANDED?
-            # landed_time = datetime.datetime.now()
+            # If the acceleration magnitude is next to nothing following the freefall, set state to LANDED
+            if abs(imu_data.get_acc_magnitude()) < (.1 * 9.81)# Accounting random noise
+            	landed_time = datetime.datetime.now()
+            	current_flight_state = FlightState.LANDED
         elif current_flight_state == FlightState.LANDED:
             # Set zero power.
             esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
@@ -218,7 +221,7 @@ try:
                 break
 
         # TODO: Did any important events get triggered?
-        # TODO: Has it been >1 munute since landing? If so, shut off the camera recording and shut down RPi
+        # TODO: Check Encoding Time
 
         # Log current system state to file
         log_file.writerow(imu_data.formatted_for_log())
@@ -236,8 +239,7 @@ except KeyboardInterrupt:
     imu_data = IMUData(current_flight_state)
     imu_data.add_event("manually terminated by SIGTERM")
     log_file.writerow(imu_data.formatted_for_log())
-    pass
-
+    
 cam.stop_recording()
 esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
 time.sleep(1)
