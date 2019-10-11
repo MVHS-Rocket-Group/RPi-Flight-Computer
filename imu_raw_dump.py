@@ -17,7 +17,7 @@ MAG_CALIBRATION = [[None, None], [None, None], [None, None]]
 # Loop period (sec)
 LOOP_PERIOD = 1.0 / 50.0
 
-# Get I2C bus
+# I2C bus for BMP280
 bus = smbus.SMBus(1)
 
 

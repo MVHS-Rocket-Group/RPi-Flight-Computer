@@ -9,7 +9,7 @@ import subprocess
 import picamera as picam
 import BMP280 as barometer
 import RPi.GPIO as io
-from imu_utils import IMU
+import IMU
 
 
 ESC_PWM_PIN = 15
@@ -21,6 +21,8 @@ ESC_MAX_DUTY = 100 * 2.0 / 20.0
 ESC_MIN_DUTY = 100 * 1.0 / 20.0
 # Handle for control over the ESC PWM pin. Initialized later in `try` block.
 esc_pwm = None
+# I2C bus for BMP280
+bus = smbus.SMBus(1)
 
 # Conversion from encoded value to m/s^2
 IMU_ACC_COEFF = 0.244 / 1000.0 * 9.81
@@ -31,7 +33,7 @@ IMU_GYRO_COEFF = 0.070  # Gyro deg/s/ per LSB.
 LOOP_PERIOD = 1.0 / 50.0
 
 
-class FlightState(enum):
+class FlightState(enum.Enum):
     # Python Enum type: https://www.geeksforgeeks.org/enum-in-python
     ON_PAD = 1
     LAUNCHED = 2
@@ -54,9 +56,10 @@ class IMUData:
         self.flight_state = flight_state
 
         if(time == None):
-            if(start_time == None):
-                start_time == datetime.datetime.now()
-            self.time = (datetime.datetime.now() - start_time).total_seconds()
+            if(IMUData.start_time == None):
+                IMUData.start_time = datetime.datetime.now()
+            self.time = (datetime.datetime.now() -
+                         IMUData.start_time).total_seconds()
         else:
             self.time = time
 
@@ -71,9 +74,9 @@ class IMUData:
             self.acc = acc
 
         if(gyro == None):
-            self.gyro = [IMU.readGYRx() * GYRO_GAIN,
-                         IMU.readGYRy() * GYRO_GAIN,
-                         IMU.readGYRz() * GYRO_GAIN]
+            self.gyro = [IMU.readGYRx() * IMU_GYRO_COEFF,
+                         IMU.readGYRy() * IMU_GYRO_COEFF,
+                         IMU.readGYRz() * IMU_GYRO_COEFF]
         else:
             self.gyro = gyro
 
@@ -84,30 +87,36 @@ class IMUData:
             self.mag = mag
 
         if(baro == None):
-            tuple = barometer.get_baro_values()
+            tuple = barometer.get_baro_values(bus)
             self.baro = [tuple[0], tuple[1]]
         else:
             self.baro = baro
+
+        # Start events list off as empty.
+        self.events = []
 
     def add_event(self, event):
         self.events.append(event)
 
     def get_acc_magnitude(self):
-        return math.sqrt(math.pow(acc[0], 2) + math.pow(acc[1], 2) + math.pow(acc[2], 2))
+        return math.sqrt(math.pow(self.acc[0], 2) + math.pow(self.acc[1], 2) + math.pow(self.acc[2], 2))
 
     def get_gyro_magnitude(self):
-        return math.sqrt(math.pow(gyro[0], 2) + math.pow(gyro[1], 2) + math.pow(gyro[2], 2))
+        return math.sqrt(math.pow(self.gyro[0], 2) + math.pow(self.gyro[1], 2) + math.pow(self.gyro[2], 2))
 
     def get_mag_magnitude(self):
-        return math.sqrt(math.pow(mag[0], 2) + math.pow(mag[1], 2) + math.pow(mag[2], 2))
+        return math.sqrt(math.pow(self.mag[0], 2) + math.pow(self.mag[1], 2) + math.pow(self.mag[2], 2))
 
     def formatted_for_log(self):
         events_as_string = ""
         for event in self.events:
             events_as_string += event + ", "
 
-        return [time, flight_state.name, acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2],
-                mag[0], mag[1], mag[2], baro[0], baro[1], events_as_string]
+        return [self.time, self.flight_state.name,
+                self.acc[0], self.acc[1], self.acc[2],
+                self.gyro[0], self.gyro[1], self.gyro[2],
+                self.mag[0], self.mag[1], self.mag[2],
+                self.baro[0], self.baro[1], events_as_string]
 
     def get_events_list(self):
         return (self.time, self.events)
@@ -121,7 +130,7 @@ launch_time = None
 landed_time = None
 
 cam = picam.PiCamera()
-# camera.resolution = (640, 480)
+# cam.resolution = (640, 480)
 cam.resolution = (1280, 720)
 
 
@@ -158,10 +167,10 @@ try:
     while os.path.isfile(log_folder + log_file + str(log_file_suffix) + ".csv"):
         log_file_suffix += 1
 
-    log_file = csv.writer(open(log_folder + log_file + str(log_file_suffix) + ".csv", 'w'),
-                          delimiter=',')
-    log_file.writerow(["elapsed time", "flight state", "accX", "accY", "accZ", "gyroX",
-                       "gyroY", "gyroZ", "magX", "magY", "magZ", "baroTemp", "baroPressure", "events"])
+    log_writer = csv.writer(open(log_folder + log_file + str(log_file_suffix) + ".csv", 'w'),
+                            delimiter=',')
+    log_writer.writerow(["elapsed time", "flight state", "accX", "accY", "accZ", "gyroX",
+                         "gyroY", "gyroZ", "magX", "magY", "magZ", "baroTemp", "baroPressure", "events"])
     print("Log file started: " + log_folder +
           log_file + str(log_file_suffix) + ".csv")
 
@@ -174,13 +183,16 @@ try:
     while os.path.isfile(video_folder + video_file + str(video_file_suffix) + ".h264"):
         video_file_suffix += 1
 
-    print("Started recording to file: " + str(video_file_suffix) + ".h264 ...")
-    cam.start_recording(
-        video_folder + str(video_file_suffix) + ".mp4", format="h264")
+    cam.start_recording(video_folder + video_file +
+                        str(video_file_suffix) + ".h264", format="h264")
+    time.sleep(1)
+    print("Recording started: " + video_folder +
+          video_file + str(video_file_suffix) + ".h264 ...")
 
     # Main Loop
     while True:
         # Read in motion data from IMU.
+        # TODO: Implement mean_filter.
         imu_data = IMUData(current_flight_state)
 
         if current_flight_state == FlightState.ON_PAD:
@@ -206,26 +218,28 @@ try:
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
             # If the acceleration magnitude is next to nothing following the freefall, set state to LANDED
-            if abs(imu_data.get_acc_magnitude()) < (.1 * 9.81):  # Accounting random noise
+            # TODO: Fix this. What we're actually looking for is a spike in acceleration as we hit the ground.
+            if abs(imu_data.get_acc_magnitude()) < (0.5 * 9.81):  # Accounting for random noise
                 landed_time = datetime.datetime.now()
                 current_flight_state = FlightState.LANDED
+                imu_data.add_event("landed")
         elif current_flight_state == FlightState.LANDED:
             # Set zero power.
             esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
 
             if datetime.datetime.now() > landed_time + datetime.timedelta(minutes=1):
                 # Begin shutdown procedure
-                imu_data.add_event("FTS automatic trigger: 10s from launch")
-                log_file.writerow(imu_data.formatted_for_log())
+                imu_data.add_event("FTS automatic trigger: 60s from landing")
+                log_writer.writerow(imu_data.formatted_for_log())
                 break
 
         # Log current system state to file
-        log_file.writerow(imu_data.formatted_for_log())
+        log_writer.writerow(imu_data.formatted_for_log())
 
         # REMOVE FOR FLIGHT!
         events = imu_data.get_events_list()
-        if not events == None:
-            print("Events produced @ t=" + events[0])
+        if not events[1] == []:
+            print("Events produced @ t=" + str(events[0]))
             for event in events[1]:
                 print(event)
 
@@ -234,13 +248,13 @@ try:
 except KeyboardInterrupt:
     imu_data = IMUData(current_flight_state)
     imu_data.add_event("manually terminated by SIGTERM")
-    log_file.writerow(imu_data.formatted_for_log())
+    log_writer.writerow(imu_data.formatted_for_log())
 
 cam.stop_recording()
 esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
 time.sleep(1)
 esc_pwm.stop()
-gpio.cleanup()
+io.cleanup()
 
 
 # DISABLE FOR FLIGHT:
