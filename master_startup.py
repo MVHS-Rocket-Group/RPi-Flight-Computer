@@ -198,8 +198,8 @@ try:
             # Set full power.
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
-            # If we're seeing <2g's, then we've almost certainly reached apogee.
-            if(imu_data.get_acc_magnitude() > 2 * 9.81):
+            # If we're seeing <2g's, then we've almost certainly lost thrust due to SRM burnout.
+            if(imu_data.get_acc_magnitude() < 2 * 9.81):
                 current_flight_state = FlightState.IN_FREEFALL
                 imu_data.add_event("in freefall")
         elif current_flight_state == FlightState.IN_FREEFALL:
@@ -219,8 +219,6 @@ try:
                 imu_data.add_event("FTS automatic trigger: 10s from launch")
                 log_file.writerow(imu_data.formatted_for_log())
                 break
-        # TODO: Did any important events get triggered?
-        # TODO: Check Encoding Time
 
         # Log current system state to file
         log_file.writerow(imu_data.formatted_for_log())
