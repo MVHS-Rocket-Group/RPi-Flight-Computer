@@ -207,7 +207,7 @@ try:
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
             # If the acceleration magnitude is next to nothing following the freefall, set state to LANDED
-            if abs(imu_data.get_acc_magnitude()) < (.1 * 9.81)# Accounting random noise
+            if abs(imu_data.get_acc_magnitude()) < (.1 * 9.81): # Accounting random noise
             	landed_time = datetime.datetime.now()
             	current_flight_state = FlightState.LANDED
         elif current_flight_state == FlightState.LANDED:
@@ -219,7 +219,6 @@ try:
                 imu_data.add_event("FTS automatic trigger: 10s from launch")
                 log_file.writerow(imu_data.formatted_for_log())
                 break
-
         # TODO: Did any important events get triggered?
         # TODO: Check Encoding Time
 
