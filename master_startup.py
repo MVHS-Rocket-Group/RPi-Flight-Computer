@@ -177,7 +177,8 @@ try:
 
     print("Started recording to file: " + str(video_file_suffix) + ".h264 ...")
     cam.start_recording(
-        video_folder + str(video_file_suffix) + ".mp4", format="h264") 
+        video_folder + str(video_file_suffix) + ".mp4", format="h264")
+    
     # Main Loop
     while True:
         # Read in motion data from IMU.
