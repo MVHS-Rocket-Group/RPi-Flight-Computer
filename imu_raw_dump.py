@@ -34,13 +34,13 @@ IMU.detectIMU()     # Detect if BerryIMUv1 or BerryIMUv2 is connected.
 IMU.initIMU()       # Initialise the accelerometer, gyroscope and compass
 
 try:
-    filter = mean_filter.IMUFilter(20)
+    filter = mean_filter.IMUFilter(10)
     start_time = datetime.datetime.now()
     while True:
         baroValues = baro.get_baro_values(bus)
         # Units: g's
-        acc = [IMU.readACCx() * 0.244 / 1000, IMU.readACCy() * 0.244 /
-               1000, IMU.readACCz() * 0.244 / 1000]
+        acc = [IMU.readACCx() * 0.244 / 1000, -IMU.readACCy() * 0.244 /
+               1000, -IMU.readACCz() * 0.244 / 1000]
         # Units: deg/s
         gyro = [IMU.readGYRx() * GYRO_GAIN, IMU.readGYRy() *
                 GYRO_GAIN, IMU.readGYRz() * GYRO_GAIN]
@@ -50,14 +50,11 @@ try:
         filter.add_data(acc, gyro, mag)
         clean = filter.update_filter()
 
-        print(str(datetime.datetime.now() - start_time) + str(acc[0]) + DEL +
-              str(acc[1]) + DEL + str(acc[2]) + "\t\t" + str(gyro[0]) + DEL +
-              str(gyro[1]) + DEL + str(gyro[2]) + "\t\t" + str(mag[0]) + DEL +
-              str(mag[1]) + DEL + str(mag[2]) + "\t\t" + str(baroValues[0]) + DEL +
-              str(baroValues[1]) + "\t\t" +
+        print(str(datetime.datetime.now() - start_time) +
+              str(acc[0]) + DEL + str(acc[1]) + DEL + str(acc[2]) + "\t\t" +
+              str(gyro[0]) + DEL + str(gyro[1]) + DEL + str(gyro[2]) + "\t\t" +
               str(clean[0][0]) + DEL + str(clean[0][1]) + DEL + str(clean[0][2]) + DEL +
-              str(clean[1][0]) + DEL + str(clean[1][1]) + DEL + str(clean[1][2]) + DEL +
-              str(clean[2][0]) + DEL + str(clean[2][1]) + DEL + str(clean[2][2]))
+              str(clean[1][0]) + DEL + str(clean[1][1]) + DEL + str(clean[1][2]))
 
         file.writerow([datetime.datetime.now() - start_time, acc[0], acc[1], acc[2],
                        gyro[0], gyro[1], gyro[2], mag[0], mag[1], mag[2], baroValues[0], baroValues[1],

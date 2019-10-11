@@ -22,7 +22,7 @@
   - Camera recorder
   - Landing buzzer control?
   - Automatic safe shutdown after landing detected
-    - 1 minute of zero acceleration after flight?
+    - 1 minute of zero acceleration after flight
 
 - Logger file format
   - CSV text lines: flight state with additional column for events
@@ -34,6 +34,13 @@ RC PWM has a "window" period of 20ms (milliseconds), with a pulse ranging in wid
 
 ![ESC PWM Diagram](https://upload.wikimedia.org/wikipedia/commons/b/b7/Sinais_controle_servomotor.JPG)
 
+Therefore:
+
+- 0% throttle command --> 5% duty cycle
+- 100% throttle command --> 10% duty cycle
+
+[Documentation from RPi.GPIO library](https://sourceforge.net/p/raspberry-gpio-python/wiki/PWM)
+
 ### Rocket IMU Axes
 
 From perspective of a cockpit at the nose cone:
@@ -42,15 +49,9 @@ From perspective of a cockpit at the nose cone:
 
 | Vehicle Axis: | Axis Description: | IMU Measurement Axis: |
 |--------------:|-------------------|:----------------------|
-| X | *roll - vertical axis through center of rocket* | +Y (*acc*), -Y (*gyro*) |
-| Y | *pitch - horizontal axis* | +X (*acc*), +X (*gyro*) |
+| X | *roll - vertical axis through center of rocket* | +X (*acc*), +X (*gyro*) |
+| Y | *pitch - horizontal axis* | -Y (*acc*), +Y (*gyro*) |
 | Z | *yaw - horizontal axis* | -Z (*acc*), +Z (*gyro*) |
-
-[Documentation from RPi.GPIO library](https://sourceforge.net/p/raspberry-gpio-python/wiki/PWM)
-
-Therefore:
-- 0% throttle command --> 5% duty cycle
-- 100% throttle command --> 10% duty cycle
 
 ## Helpful Resources
 

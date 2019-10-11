@@ -61,25 +61,19 @@ class IMUData:
             self.time = time
 
         if(acc == None):
-            # AHEM... correct axes.
-            # self.acc = [IMU.readACCy() * IMU_ACC_COEFF, IMU.readACCx()
-            #             * IMU_ACC_COEFF, -IMU.readACCz() * IMU_ACC_COEFF]
-            self.acc = [IMU.readACCx() * 0.244 / 1000, IMU.readACCy() * 0.244 /
-                        1000, IMU.readACCz() * 0.244 / 1000]
+            self.acc = [IMU.readACCx() * 0.244 / 1000, -IMU.readACCy() * 0.244 /
+                        1000, -IMU.readACCz() * 0.244 / 1000]
         else:
             self.acc = acc
 
         if(gyro == None):
-            # AHEM... correct axes.
-            # self.gyro = [-IMU.readGYRy() * IMU_GYRO_COEFF, IMU.readGYRx()
-            #              * IMU_GYRO_COEFF,  IMU.readGYRz() * IMU_GYRO_COEFF]
             self.gyro = [IMU.readGYRx() * GYRO_GAIN, IMU.readGYRy() *
                          GYRO_GAIN, IMU.readGYRz() * GYRO_GAIN]
         else:
             self.gyro = gyro
 
         if(mag == None):
-            # DODO: Conversion needed?
+            # TODO: Conversion needed?
             self.mag = [IMU.readMAGx(), IMU.readMAGy(), IMU.readMAGz()]
         else:
             self.mag = mag
@@ -207,9 +201,9 @@ try:
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
 
             # If the acceleration magnitude is next to nothing following the freefall, set state to LANDED
-            if abs(imu_data.get_acc_magnitude()) < (.1 * 9.81): # Accounting random noise
-            	landed_time = datetime.datetime.now()
-            	current_flight_state = FlightState.LANDED
+            if abs(imu_data.get_acc_magnitude()) < (.1 * 9.81):  # Accounting random noise
+                landed_time = datetime.datetime.now()
+                current_flight_state = FlightState.LANDED
         elif current_flight_state == FlightState.LANDED:
             # Set zero power.
             esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
