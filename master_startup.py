@@ -244,7 +244,7 @@ except KeyboardInterrupt:
     imu_data.add_event("manually terminated by SIGTERM")
     log_file.writerow(imu_data.formatted_for_log())
     pass
-
+#Note: We might want to avoid making this redundant with the above shutdown sequence-- I was just noticing that. Perhaps keep the stop recording so that the pass statement still works, while moving cleanup to earlier. Thoughts? 
 cam.stop_recording()
 esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
 time.sleep(1)
