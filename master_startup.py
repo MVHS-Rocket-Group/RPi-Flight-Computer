@@ -232,7 +232,11 @@ try:
                 log_writer.writerow(imu_data.formatted_for_log())
                 break
 
-        # TODO: Add failure case to shutdown after launch + 5 mins.
+        if datetime.datetime.now() > launch_time + datetime.timedelta(minutes=3):
+            # Begin shutdown procedure
+            imu_data.add_event("FTS automatic trigger: 3m from launch")
+            log_writer.writerow(imu_data.formatted_for_log())
+            break
 
         # Log current system state to file
         log_writer.writerow(imu_data.formatted_for_log())
@@ -258,7 +262,6 @@ esc_pwm.stop()
 io.cleanup()
 
 
-# DISABLE FOR FLIGHT:
 print("Shutting down...")
-# ENABLE FOR FLIGHT: (MUST BE RUN AS SUPER USER FOR THIS TO WORK!!!!!!!!!!)
+# ENABLE FOR FLIGHT:
 # subprocess.call(["sudo", "shutdown", "-h", "now"])
