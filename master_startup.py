@@ -9,6 +9,7 @@ import subprocess
 import picamera as picam
 import BMP280 as barometer
 import RPi.GPIO as io
+import mean_filter as m_filter
 import IMU
 
 
@@ -22,12 +23,12 @@ ESC_MIN_DUTY = 100 * 1.0 / 20.0
 # Handle for control over the ESC PWM pin. Initialized later in `try` block.
 esc_pwm = None
 # I2C bus for BMP280
-bus = smbus.SMBus(1)
+i2c_bus = smbus.SMBus(1)
 
 # Conversion from encoded value to m/s^2
 IMU_ACC_COEFF = 0.244 / 1000.0 * 9.81
 # Conversion from encoded value to deg/s
-IMU_GYRO_COEFF = 0.070  # Gyro deg/s/ per LSB.
+IMU_GYRO_COEFF = 0.070  # Gyro deg/s per LSB.
 
 # Loop period (sec)
 LOOP_PERIOD = 1.0 / 50.0
@@ -87,7 +88,7 @@ class IMUData:
             self.mag = mag
 
         if(baro == None):
-            tuple = barometer.get_baro_values(bus)
+            tuple = barometer.get_baro_values(i2c_bus)
             self.baro = [tuple[0], tuple[1]]
         else:
             self.baro = baro
