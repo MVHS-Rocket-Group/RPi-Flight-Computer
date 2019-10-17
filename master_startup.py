@@ -140,22 +140,26 @@ cam.resolution = (1280, 720)
 
 try:
     # Init GPIO PWM output for ESC
+    print("START: GPIO pins setup")
     io.setwarnings(False)
     io.setmode(io.BOARD)
     io.setup(ESC_PWM_PIN, io.OUT)
     io.setup(ARMING_SW_PIN, io.IN)
+    print("END: GPIO pins setup")
 
     # Setup the PWM pin and set it to min command.
+    print("START: ESC MIN_DUTY calibration")
     esc_pwm = io.PWM(ESC_PWM_PIN, ESC_PWM_FREQ)
     esc_pwm.start(ESC_MIN_DUTY)
     # Let the ESCs sample the duty cycle of ESC_MIN_DUTY.
     time.sleep(3)
-    print("ESC MIN_DUTY calibration performed")
+    print("END: ESC MIN_DUTY calibration")
 
     # Init IMU
-    IMU.detectIMU()     # Detect if BerryIMUv1 or BerryIMUv2 is connected.
-    IMU.initIMU()       # Initialise the accelerometer, gyroscope and compass
-    print("IMU Initialized")
+    print("START: IMU Initialized")
+    IMU.detectIMU()     # Detect which BerryIMU is connected. (v1 or v2)
+    IMU.initIMU()       # Initialise the IMU.
+    print("END: IMU Initialized")
 
     # Start log file
     log_folder = "flight_logs/"
@@ -173,6 +177,7 @@ try:
     print("Log file started: " + log_folder +
           log_file + str(log_file_suffix) + ".csv")
 
+    # Figure out what the name of the recording should be.
     video_folder = "recordings/"
     video_file = "payload_recording"
     video_file_suffix = 0
@@ -189,7 +194,7 @@ try:
 
         # If we're armed and the arming switch is turned off...
         if current_flight_state != FlightState.DISARMED and not io.input(ARMING_SW_PIN):
-            imu_data.add_event("FTS manual trigger via arming switch")
+            imu_data.add_event("FTS manual trigger: via arming switch")
             current_flight_state = FlightState.DISARMED
             esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
             log_writer.writerow(imu_data.formatted_for_log())
@@ -202,7 +207,7 @@ try:
             # If we are indeed armed by the 3v3 switch line...
             if io.input(ARMING_SW_PIN):
                 current_flight_state = FlightState.ON_PAD
-                imu_data.add_event("armed")
+                imu_data.add_event("Armed")
 
                 # Spin up both fans for a test. (to 25% throttle)
                 esc_pwm.ChangeDutyCycle((ESC_MAX_DUTY - ESC_MIN_DUTY) / 4.0 + ESC_MIN_DUTY)
@@ -224,8 +229,7 @@ try:
             if(imu_data.get_acc_magnitude() > 2 * 9.81):
                 current_flight_state = FlightState.LAUNCHED
                 launch_time = datetime.datetime.now()
-                imu_data.add_event("launched")
-                esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
+                imu_data.add_event("Launched")
         elif current_flight_state == FlightState.LAUNCHED:
             # Set full power.
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
@@ -233,7 +237,7 @@ try:
             # If we're seeing <2g's, then we've almost certainly lost thrust due to SRM burnout.
             if imu_data.get_acc_magnitude() < 2 * 9.81:
                 current_flight_state = FlightState.IN_FREEFALL
-                imu_data.add_event("in freefall")
+                imu_data.add_event("In freefall")
         elif current_flight_state == FlightState.IN_FREEFALL:
             # Set full power.
             esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
@@ -243,11 +247,12 @@ try:
             if abs(imu_data.get_acc_magnitude()) < (0.5 * 9.81):  # Accounting for random noise
                 landed_time = datetime.datetime.now()
                 current_flight_state = FlightState.LANDED
-                imu_data.add_event("landed")
+                imu_data.add_event("Landed")
         elif current_flight_state == FlightState.LANDED:
             # Set zero power.
             esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
 
+            # Automatic shutdown after landing.
             if datetime.datetime.now() > landed_time + datetime.timedelta(minutes=1):
                 # Begin shutdown procedure
                 imu_data.add_event("FTS automatic trigger: 60s from landing")
@@ -265,18 +270,19 @@ try:
         # Log current system state to file
         log_writer.writerow(imu_data.formatted_for_log())
 
-        # REMOVE FOR FLIGHT!
+        # Log the list of events that were triggered during this timestep.
         events = imu_data.get_events_list()
         if not events[1] == []:
             print("Events produced @ t=" + str(events[0]))
             for event in events[1]:
                 print(event)
 
+        # Timestep delay, 1.0s if DISARMED, else LOOP_PERIOD.
         time.sleep(1.0 if current_flight_state == FlightState.DISARMED else LOOP_PERIOD)
 
 except KeyboardInterrupt:
     imu_data = IMUData(current_flight_state)
-    imu_data.add_event("manually terminated by SIGTERM")
+    imu_data.add_event("Manually terminated by SIGTERM")
     log_writer.writerow(imu_data.formatted_for_log())
 
 cam.stop_recording()
