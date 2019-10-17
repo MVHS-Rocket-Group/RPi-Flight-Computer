@@ -5,7 +5,7 @@ class IMUFilter:
         self.mag_history = []
         self.filter_buffer_size = filter_buffer_size
 
-    def add_data(self, acc: float[3], gyro: float[3], mag: float[3]):
+    def add_data(self, acc, gyro, mag):
         self.acc_history.append(acc)
         self.gyro_history.append(gyro)
         self.mag_history.append(mag)
