@@ -254,11 +254,12 @@ try:
                 break
 
         # 3-minute deadman timer to ensure a proper shutdown.
-        if datetime.datetime.now() > launch_time + datetime.timedelta(minutes=3):
-            # Begin shutdown procedure
-            imu_data.add_event("FTS automatic trigger: 3m from launch")
-            log_writer.writerow(imu_data.formatted_for_log())
-            break
+        if launch_time != None:
+            if datetime.datetime.now() > launch_time + datetime.timedelta(minutes=3):
+                # Begin shutdown procedure
+                imu_data.add_event("FTS automatic trigger: 3m from launch")
+                log_writer.writerow(imu_data.formatted_for_log())
+                break
 
         # Log current system state to file
         log_writer.writerow(imu_data.formatted_for_log())
