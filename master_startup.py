@@ -188,7 +188,7 @@ try:
         imu_data = IMUData(current_flight_state)
 
         # If we're armed and the arming switch is turned off...
-        if current_flight_state != FlightState.DISARMED and io.input(ARMING_SW_PIN):
+        if current_flight_state != FlightState.DISARMED and not io.input(ARMING_SW_PIN):
             imu_data.add_event("FTS manual trigger via arming switch")
             current_flight_state = FlightState.DISARMED
             esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
