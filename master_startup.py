@@ -204,8 +204,8 @@ try:
                 current_flight_state = FlightState.ON_PAD
                 imu_data.add_event("armed")
 
-                # Spin up both fans for a test.
-                esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
+                # Spin up both fans for a test. (to 25% throttle)
+                esc_pwm.ChangeDutyCycle((ESC_MAX_DUTY - ESC_MIN_DUTY) / 4.0 + ESC_MIN_DUTY)
                 time.sleep(1.5)
                 esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
                 print("ESC self-test performed")
