@@ -13,7 +13,9 @@ import mean_filter as m_filter
 import IMU
 
 
+# https://pinout.xyz/#
 ESC_PWM_PIN = 15
+ARMING_SW_PIN = 8
 # frequency (Hz) = 1 / period (sec)
 ESC_PWM_FREQ = 1 / 0.02
 # Duty cycle percentage when firewalling the throttle.
@@ -36,10 +38,11 @@ LOOP_PERIOD = 1.0 / 50.0
 
 class FlightState(enum.Enum):
     # Python Enum type: https://www.geeksforgeeks.org/enum-in-python
-    ON_PAD = 1
-    LAUNCHED = 2
-    IN_FREEFALL = 3
-    LANDED = 4
+    DISARMED = 1
+    ON_PAD = 2
+    LAUNCHED = 3
+    IN_FREEFALL = 4
+    LANDED = 5
 
 
 class IMUData:
@@ -124,7 +127,7 @@ class IMUData:
 
 
 # Stores which state of flight the rocket is currently in.
-current_flight_state = FlightState.ON_PAD
+current_flight_state = FlightState.DISARMED
 
 # Placeholder for datetime object.
 launch_time = None
@@ -140,6 +143,7 @@ try:
     io.setwarnings(False)
     io.setmode(io.BOARD)
     io.setup(ESC_PWM_PIN, io.OUT)
+    io.setup(ARMING_SW_PIN, io.IN)
 
     # Setup the PWM pin and set it to min command.
     esc_pwm = io.PWM(ESC_PWM_PIN, ESC_PWM_FREQ)
@@ -147,12 +151,6 @@ try:
     # Let the ESCs sample the duty cycle of ESC_MIN_DUTY.
     time.sleep(3)
     print("ESC MIN_DUTY calibration performed")
-
-    # Spin up both fans for a test.
-    esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
-    time.sleep(1.5)
-    esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
-    print("ESC self-test performed")
 
     # Init IMU
     IMU.detectIMU()     # Detect if BerryIMUv1 or BerryIMUv2 is connected.
@@ -175,7 +173,6 @@ try:
     print("Log file started: " + log_folder +
           log_file + str(log_file_suffix) + ".csv")
 
-    # https://picamera.readthedocs.io/en/release-1.13/api_camera.html#picamera.PiCamera.start_recording
     video_folder = "recordings/"
     video_file = "payload_recording"
     video_file_suffix = 0
@@ -184,17 +181,40 @@ try:
     while os.path.isfile(video_folder + video_file + str(video_file_suffix) + ".h264"):
         video_file_suffix += 1
 
-    cam.start_recording(video_folder + video_file +
-                        str(video_file_suffix) + ".h264", format="h264")
-    print("Recording started: " + video_folder +
-          video_file + str(video_file_suffix) + ".h264 ...")
-
     # Main Loop
     while True:
         # Read in motion data from IMU.
         # TODO: Implement mean_filter.
         imu_data = IMUData(current_flight_state)
 
+        # If we're armed and the arming switch is turned off...
+        if current_flight_state != FlightState.DISARMED and io.input(ARMING_SW_PIN):
+            imu_data.add_event("FTS manual trigger via arming switch")
+            current_flight_state = FlightState.DISARMED
+            esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
+            break
+
+        if current_flight_state == FlightState.DISARMED:
+            # Idle the motors because we aren't armed.
+            esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
+
+            # If we are indeed armed by the 3v3 switch line...
+            if io.input(ARMING_SW_PIN):
+                current_flight_state = FlightState.ON_PAD
+                imu_data.add_event("armed")
+
+                # Spin up both fans for a test.
+                esc_pwm.ChangeDutyCycle(ESC_MAX_DUTY)
+                time.sleep(1.5)
+                esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
+                print("ESC self-test performed")
+
+                # Start the camera recording.
+                # https://picamera.readthedocs.io/en/release-1.13/api_camera.html#picamera.PiCamera.start_recording
+                cam.start_recording(video_folder + video_file +
+                                    str(video_file_suffix) + ".h264", format="h264")
+                print("Recording started: " + video_folder +
+                      video_file + str(video_file_suffix) + ".h264 ...")
         if current_flight_state == FlightState.ON_PAD:
             # Idle until we detect a launch.
             esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
@@ -233,6 +253,7 @@ try:
                 log_writer.writerow(imu_data.formatted_for_log())
                 break
 
+        # 3-minute deadman timer to ensure a proper shutdown.
         if datetime.datetime.now() > launch_time + datetime.timedelta(minutes=3):
             # Begin shutdown procedure
             imu_data.add_event("FTS automatic trigger: 3m from launch")
@@ -249,7 +270,7 @@ try:
             for event in events[1]:
                 print(event)
 
-        time.sleep(LOOP_PERIOD)
+        time.sleep(1.0 if current_flight_state == FlightState.DISARMED else LOOP_PERIOD)
 
 except KeyboardInterrupt:
     imu_data = IMUData(current_flight_state)
