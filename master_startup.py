@@ -192,6 +192,7 @@ try:
             imu_data.add_event("FTS manual trigger via arming switch")
             current_flight_state = FlightState.DISARMED
             esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
+            log_writer.writerow(imu_data.formatted_for_log())
             break
 
         if current_flight_state == FlightState.DISARMED:
