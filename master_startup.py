@@ -172,9 +172,12 @@ try:
 
     log_writer = csv.writer(open(log_folder + log_file + str(log_file_suffix) + ".csv", 'w'),
                             delimiter=',')
-    log_writer.writerow(["elapsed time", "flight state", "accX", "accY", "accZ", "gyroX",
-                         "gyroY", "gyroZ", "magX", "magY", "magZ", "baroTemp", "baroPressure", "events"])
-    print("Log file started: " + log_folder +
+    log_writer.writerow(["elapsed time (s)", "flight state",
+                         "accX (m/s^2)", "accY (m/s^2)", "accZ (m/s^2)",
+                         "gyroX (deg/s)", "gyroY (deg/s)", "gyroZ (deg/s)",
+                         "magX (uT)", "magY (uT)", "magZ (uT)",
+                         "baroTemp (deg C)", "baroPressure (hPa)", "events"])
+    print("START: Log file @ " + log_folder +
           log_file + str(log_file_suffix) + ".csv")
 
     # Figure out what the name of the recording should be.
@@ -210,16 +213,17 @@ try:
                 imu_data.add_event("Armed")
 
                 # Spin up both fans for a test. (to 25% throttle)
+                print("START: ESC self-test")
                 esc_pwm.ChangeDutyCycle((ESC_MAX_DUTY - ESC_MIN_DUTY) / 4.0 + ESC_MIN_DUTY)
                 time.sleep(1.5)
                 esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
-                print("ESC self-test performed")
+                print("END: ESC self-test")
 
                 # Start the camera recording.
                 # https://picamera.readthedocs.io/en/release-1.13/api_camera.html#picamera.PiCamera.start_recording
                 cam.start_recording(video_folder + video_file +
                                     str(video_file_suffix) + ".h264", format="h264")
-                print("Recording started: " + video_folder +
+                print("START: Recording @ " + video_folder +
                       video_file + str(video_file_suffix) + ".h264 ...")
         if current_flight_state == FlightState.ON_PAD:
             # Idle until we detect a launch.
