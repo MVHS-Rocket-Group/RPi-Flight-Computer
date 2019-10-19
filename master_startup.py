@@ -271,6 +271,12 @@ try:
                 log_writer.writerow(imu_data.formatted_for_log())
                 break
 
+            if datetime.datetime.now() > launch_time + datetime.timedelta(seconds=15):
+                # Turn off motors
+                imu_data.add_event("ESC disable automatic trigger: 15s from launch")
+                log_writer.writerow(imu_data.formatted_for_log())
+                esc_pwm.ChangeDutyCycle(ESC_MIN_DUTY)
+
         # Log current system state to file
         log_writer.writerow(imu_data.formatted_for_log())
 
