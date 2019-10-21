@@ -1,16 +1,16 @@
-# Flight-Computer
+# RPi-Flight-Computer
 
 ## Repository Structure
 
 - `BerryIMU/*`: Example and library code for the BerryIMU from Ozzymaker.
 - `old_software/*`: Software from initial September 5, 2019 dump of the `/home/pi` directory.
-- `Flight-Controller.code-workspace`: VSCode workspace file.
 - `IMU.py`, `LSM9DS0.py`, `LSM9DS1.py`: IMU library.
 - `BMP280.py`: Barometer library.
 - `master_startup.py`: Script to launch at RPi startup.
 - `mean_filter.py`: Time-averaged (*rolling average*) IMU filter.
 - `picamera_demo.py`: Demo for recording video from the Pi's Camera Module.
 - `pwm_demo.py`: Demo for interacting with PWM ESCs over GPIO.
+- `RPi-Flight-Controller.code-workspace`: VSCode workspace file.
 
 ## Principal control flow
 
